@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { alumniAPI } from '../utils/api';
 
 function AlumniRegistration({ isOpen, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -13,40 +14,75 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
   });
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB');
+        return;
+      }
       setProfileImage(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
+
     const requiredFields = ['name', 'email', 'phone', 'batch', 'company', 'techStack'];
     const missingFields = requiredFields.filter((field) => !formData[field].trim());
     
     if (missingFields.length > 0) {
-      alert(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      setError(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      setLoading(false);
       return;
     }
 
-    console.log('Alumni form submitted:', { ...formData, hasImage: profileImage ? 'Yes' : 'No' });
-    alert('Alumni registration submitted successfully!');
-    onSuccess();
-    onClose();
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      linkedin: '',
-      batch: '',
-      company: '',
-      techStack: '',
-    });
-    setProfileImage(null);
-    setImagePreview('');
+    try {
+      const alumniData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        batch: formData.batch,
+        company: formData.company,
+        linkedin: formData.linkedin,
+        techStack: formData.techStack,
+        image: imagePreview || 'https://i.ibb.co/TqK1XTQm/image-5.jpg',
+      };
+
+      const response = await alumniAPI.create(alumniData);
+      alert('Alumni registration submitted successfully!');
+      console.log('Response:', response);
+
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        linkedin: '',
+        batch: '',
+        company: '',
+        techStack: '',
+      });
+      setProfileImage(null);
+      setImagePreview('');
+      onSuccess();
+      onClose();
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      setError(err.response?.data?.message || err.response?.data?.error || 'Failed to submit registration. Please try again.');
+      
+      if (err.response?.data?.errors) {
+        const errorMessages = err.response.data.errors.map(e => e.msg).join(', ');
+        setError(errorMessages);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -75,6 +111,7 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               placeholder="Enter your full name"
+              disabled={loading}
             />
           </div>
           <div>

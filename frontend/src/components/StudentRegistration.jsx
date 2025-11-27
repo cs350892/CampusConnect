@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Upload, Image as ImageIcon } from 'lucide-react';
 import { studentAPI } from '../utils/api';
+import axios from 'axios';
 
 function StudentRegistration({ isOpen, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -17,7 +18,11 @@ function StudentRegistration({ isOpen, onClose, onSuccess }) {
     linkedin: '',
     location: 'India',
     pronouns: 'They/Them',
+    image: '',
   });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -29,6 +34,48 @@ function StudentRegistration({ isOpen, onClose, onSuccess }) {
       [name]: value
     }));
     setError(null);
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select an image file');
+        return;
+      }
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size should be less than 5MB');
+        return;
+      }
+      setSelectedFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      setError(null);
+    }
+  };
+
+  const uploadImage = async () => {
+    if (!selectedFile) return null;
+
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+
+      const response = await axios.post('http://localhost:5000/api/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      return response.data.url;
+    } catch (err) {
+      console.error('Image upload error:', err);
+      throw new Error(err.response?.data?.message || 'Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const validateForm = () => {
@@ -54,6 +101,12 @@ function StudentRegistration({ isOpen, onClose, onSuccess }) {
     setLoading(true);
 
     try {
+      // Upload image first if selected
+      let imageUrl = formData.image;
+      if (selectedFile) {
+        imageUrl = await uploadImage();
+      }
+
       const payload = {
         name: formData.name.trim(),
         email: formData.email.trim(),
@@ -66,6 +119,7 @@ function StudentRegistration({ isOpen, onClose, onSuccess }) {
         resumeLink: formData.resumeLink.trim(),
         location: formData.location.trim() || 'India',
         pronouns: formData.pronouns || 'They/Them',
+        image: imageUrl || 'https://i.ibb.co/TqK1XTQm/image-5.jpg',
         socialLinks: {
           github: formData.github.trim() || 'https://github.com',
           linkedin: formData.linkedin.trim()
@@ -92,7 +146,10 @@ function StudentRegistration({ isOpen, onClose, onSuccess }) {
           linkedin: '',
           location: 'India',
           pronouns: 'They/Them',
+          image: '',
         });
+        setSelectedFile(null);
+        setImagePreview(null);
         setSuccess(false);
       }, 1500);
 
@@ -147,6 +204,43 @@ function StudentRegistration({ isOpen, onClose, onSuccess }) {
               <span className="text-sm">Registration successful! Welcome to HBTU Connect.</span>
             </div>
           )}
+
+          {/* Profile Image Upload */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Profile Photo</h3>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-24 h-24 rounded-full object-cover border-2 border-blue-200"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center border-2 border-gray-200">
+                    <ImageIcon className="w-10 h-10 text-gray-400" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200">
+                  <Upload className="w-4 h-4" />
+                  <span className="text-sm font-medium">Choose Photo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    disabled={loading || uploadingImage}
+                  />
+                </label>
+                <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 5MB</p>
+                {uploadingImage && (
+                  <p className="text-xs text-blue-600 mt-1">Uploading...</p>
+                )}
+              </div>
+            </div>
+          </div>
 
           {/* Personal Information */}
           <div className="space-y-4">
@@ -385,15 +479,15 @@ function StudentRegistration({ isOpen, onClose, onSuccess }) {
             <button
               type="submit"
               className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              disabled={loading}
+              disabled={loading || uploadingImage}
             >
-              {loading ? (
+              {loading || uploadingImage ? (
                 <>
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Registering...
+                  {uploadingImage ? 'Uploading Image...' : 'Registering...'}
                 </>
               ) : (
                 'Register Now'

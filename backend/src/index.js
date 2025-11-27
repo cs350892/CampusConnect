@@ -10,6 +10,7 @@ const alumniRoutes = require('./routes/alumniRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const referralRoutes = require('./routes/referralRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 dotenv.config();
 
@@ -42,6 +43,11 @@ app.get('/api/health', (req, res) => {
 
 // API Routes - with error handling for debugging
 try {
+  // IMPORTANT: Load upload routes FIRST (public routes, no auth needed during registration)
+  console.log('Loading uploadRoutes (PUBLIC)...');
+  app.use('/api', uploadRoutes);
+  console.log('✓ uploadRoutes loaded');
+  
   console.log('Loading authRoutes...');
   app.use('/api', authRoutes);
   console.log('✓ authRoutes loaded');

@@ -53,7 +53,21 @@ exports.uploadImage = async (req, res) => {
 exports.deleteImage = async (req, res) => {
   try {
     const { filename } = req.params;
-    const filePath = path.join(__dirname, '../../uploads', filename);
+    
+    // Sanitize filename to prevent path traversal attacks
+    const sanitizedFilename = path.basename(filename);
+    const filePath = path.join(__dirname, '../../uploads', sanitizedFilename);
+    
+    // Ensure the file is within the uploads directory
+    const uploadsDir = path.resolve(__dirname, '../../uploads');
+    const resolvedPath = path.resolve(filePath);
+    
+    if (!resolvedPath.startsWith(uploadsDir)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid filename'
+      });
+    }
 
     // Check if file exists
     if (!fs.existsSync(filePath)) {

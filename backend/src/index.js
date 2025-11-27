@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -10,6 +11,7 @@ const alumniRoutes = require('./routes/alumniRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const referralRoutes = require('./routes/referralRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 dotenv.config();
 
@@ -24,6 +26,9 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -65,6 +70,10 @@ try {
   console.log('Loading adminRoutes...');
   app.use('/api', adminRoutes);
   console.log('✓ adminRoutes loaded');
+  
+  console.log('Loading uploadRoutes...');
+  app.use('/api', uploadRoutes);
+  console.log('✓ uploadRoutes loaded');
 } catch (error) {
   console.error('Error loading routes:', error);
   throw error;

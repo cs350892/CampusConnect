@@ -1,7 +1,10 @@
+// Load environment variables FIRST (before any other imports that use them)
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -11,8 +14,6 @@ const jobRoutes = require('./routes/jobRoutes');
 const referralRoutes = require('./routes/referralRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

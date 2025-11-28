@@ -55,28 +55,7 @@ function StudentRegistration({ isOpen, onClose, onSuccess }) {
     }
   };
 
-  const uploadImage = async () => {
-    if (!selectedFile) return null;
-
-    setUploadingImage(true);
-    try {
-      const formData = new FormData();
-      formData.append('image', selectedFile);
-
-      const response = await axios.post('http://localhost:5000/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      return response.data.url;
-    } catch (err) {
-      console.error('Image upload error:', err);
-      throw new Error(err.response?.data?.message || 'Failed to upload image');
-    } finally {
-      setUploadingImage(false);
-    }
-  };
+  // No separate upload needed - image will be sent with registration
 
   const validateForm = () => {
     if (!formData.name.trim()) return 'Name is required';
@@ -101,32 +80,37 @@ function StudentRegistration({ isOpen, onClose, onSuccess }) {
     setLoading(true);
 
     try {
-      // Upload image first if selected
-      let imageUrl = formData.image;
+      // Create FormData for multipart upload (image + data together)
+      const registrationData = new FormData();
+      
+      // Add image file if selected
       if (selectedFile) {
-        imageUrl = await uploadImage();
+        registrationData.append('image', selectedFile);
       }
+      
+      // Add all student data fields
+      registrationData.append('name', formData.name.trim());
+      registrationData.append('email', formData.email.trim());
+      registrationData.append('phone', formData.phone.trim());
+      registrationData.append('rollNumber', formData.rollNumber.trim());
+      registrationData.append('batch', formData.batch.trim());
+      registrationData.append('branch', formData.branch.trim() || 'Not Specified');
+      registrationData.append('dsaProblems', parseInt(formData.dsaProblems) || 0);
+      registrationData.append('techStack', formData.techStack.trim());
+      registrationData.append('resumeLink', formData.resumeLink.trim());
+      registrationData.append('location', formData.location.trim() || 'India');
+      registrationData.append('pronouns', formData.pronouns || 'They/Them');
+      registrationData.append('github', formData.github.trim() || 'https://github.com');
+      registrationData.append('linkedin', formData.linkedin.trim());
 
-      const payload = {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        rollNumber: formData.rollNumber.trim(),
-        batch: formData.batch.trim(),
-        branch: formData.branch.trim() || 'Not Specified',
-        dsaProblems: parseInt(formData.dsaProblems) || 0,
-        techStack: formData.techStack.trim(),
-        resumeLink: formData.resumeLink.trim(),
-        location: formData.location.trim() || 'India',
-        pronouns: formData.pronouns || 'They/Them',
-        image: imageUrl || 'https://i.ibb.co/TqK1XTQm/image-5.jpg',
-        socialLinks: {
-          github: formData.github.trim() || 'https://github.com',
-          linkedin: formData.linkedin.trim()
-        }
-      };
+      // Send registration with image
+      const response = await axios.post('http://localhost:5000/api/students', registrationData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-      const data = await studentAPI.create(payload);
+      const data = response.data;
 
       setSuccess(true);
       setTimeout(() => {

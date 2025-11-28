@@ -1,4 +1,5 @@
 const StudentModel = require('../models/student');
+const { uploadFromBuffer, isConfigured } = require('../utils/cloudinary');
 
 const getAllStudents = async (req, res) => {
   try {
@@ -23,17 +24,39 @@ const getStudentById = async (req, res) => {
 
 const createStudent = async (req, res) => {
   try {
-    // Generate unique ID
+    // 1. Upload image to Cloudinary if provided
+    let imageUrl = 'https://i.ibb.co/TqK1XTQm/image-5.jpg'; // Default
+    let cloudinaryPublicId = null;
+
+    if (req.file && isConfigured) {
+      try {
+        console.log(`📸 Uploading student photo: ${req.file.originalname}`);
+        const uploadResult = await uploadFromBuffer(req.file.buffer, {
+          folder: 'campus-connect/students',
+          transformation: [{ width: 500, height: 500, crop: 'fill', gravity: 'face' }],
+          resource_type: 'image'
+        });
+        imageUrl = uploadResult.secure_url;
+        cloudinaryPublicId = uploadResult.public_id;
+        console.log(`✅ Image uploaded: ${imageUrl}`);
+      } catch (uploadError) {
+        console.error('⚠️  Image upload failed:', uploadError.message);
+        // Continue with default image instead of failing registration
+      }
+    }
+
+    // 2. Generate unique ID
     const lastStudent = await StudentModel.findOne().sort({ id: -1 });
     const newId = lastStudent ? lastStudent.id + 1 : 1;
 
-    // Parse techStack into skills if provided
+    // 3. Parse techStack into skills if provided
     let skills = { dsa: [], development: [] };
     if (req.body.techStack && req.body.techStack.trim().length > 0) {
       const techArray = req.body.techStack.split(',').map(tech => tech.trim()).filter(tech => tech.length > 0);
       skills.development = techArray;
     }
 
+    // 4. Prepare student data
     const studentData = {
       id: newId,
       name: req.body.name,
@@ -42,7 +65,9 @@ const createStudent = async (req, res) => {
       batch: req.body.batch,
       branch: req.body.branch || 'Not Specified',
       phone: req.body.phone,
-      image: req.body.image || 'https://i.ibb.co/TqK1XTQm/image-5.jpg',
+      image: imageUrl, // Legacy field for backward compatibility
+      imageUrl: imageUrl, // New dedicated field
+      cloudinaryPublicId: cloudinaryPublicId,
       pronouns: req.body.pronouns || 'They/Them',
       location: req.body.location || 'India',
       headline: req.body.headline || 'Student at HBTU',

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import AlumniRegistration from '../components/AlumniRegistration';
 import StudentRegistration from '../components/StudentRegistration';
 import { alumniAPI } from '../utils/api';
-import { Users, Loader2, MapPin, Briefcase, Code, Github, Linkedin, Mail, Phone } from 'lucide-react';
+import { Users, Loader2, MapPin, Briefcase, Code, Mail, Phone } from 'lucide-react';
 
 export function Alumni() {
   const [alumni, setAlumni] = useState([]);
@@ -98,9 +98,10 @@ export function Alumni() {
                 {/* Header */}
                 <div className="flex items-start gap-3 mb-4">
                   <img
-                    src={alumnus.image || 'https://i.ibb.co/TqK1XTQm/image-5.jpg'}
+                    src={alumnus.imageUrl || alumnus.image || 'https://i.ibb.co/TqK1XTQm/image-5.jpg'}
                     alt={alumnus.name}
                     className="w-16 h-16 rounded-full object-cover border-2 border-orange-100"
+                    onError={(e) => { e.target.src = 'https://i.ibb.co/TqK1XTQm/image-5.jpg'; }}
                   />
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-800 mb-1">{alumnus.name}</h3>
@@ -165,41 +166,19 @@ export function Alumni() {
                   </div>
                 )}
 
-                {/* Social Links */}
-                <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
-                  {alumnus.socialLinks?.github && (
-                    <a
-                      href={alumnus.socialLinks.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-gray-900 transition-colors"
-                      title="GitHub"
-                    >
-                      <Github className="w-4 h-4" />
-                    </a>
-                  )}
-                  {alumnus.socialLinks?.linkedin && (
-                    <a
-                      href={alumnus.socialLinks.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 transition-colors"
-                      title="LinkedIn"
-                    >
-                      <Linkedin className="w-4 h-4" />
-                    </a>
-                  )}
-                  {alumnus.resumeLink && (
+                {/* Resume Link */}
+                {alumnus.resumeLink && (
+                  <div className="flex items-center pt-3 border-t border-gray-100">
                     <a
                       href={alumnus.resumeLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="ml-auto text-orange-600 hover:text-orange-800 text-sm font-medium transition-colors"
+                      className="text-orange-600 hover:text-orange-800 text-sm font-medium transition-colors"
                     >
                       View Resume
                     </a>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             ))
           ) : (

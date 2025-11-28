@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import { alumniAPI } from '../utils/api';
+import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import axios from 'axios';
 
 function AlumniRegistration({ isOpen, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -11,12 +11,12 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
     branch: '',
     company: '',
     techStack: '',
-    github: '',
-    linkedin: '',
     location: 'India',
     pronouns: 'They/Them',
     resumeLink: '',
   });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -28,6 +28,25 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
       [name]: value
     }));
     setError(null);
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select an image file');
+        return;
+      }
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size should be less than 5MB');
+        return;
+      }
+      setSelectedFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      setError(null);
+    }
   };
 
   const validateForm = () => {
@@ -54,24 +73,34 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
     setLoading(true);
 
     try {
-      const payload = {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        batch: formData.batch.trim(),
-        branch: formData.branch.trim() || 'Not Specified',
-        company: formData.company.trim(),
-        techStack: formData.techStack.trim(),
-        resumeLink: formData.resumeLink.trim(),
-        location: formData.location.trim() || 'India',
-        pronouns: formData.pronouns || 'They/Them',
-        socialLinks: {
-          github: formData.github.trim() || 'https://github.com',
-          linkedin: formData.linkedin.trim()
-        }
-      };
+      // Create FormData for multipart upload (image + data together)
+      const registrationData = new FormData();
+      
+      // Add image file if selected
+      if (selectedFile) {
+        registrationData.append('image', selectedFile);
+      }
+      
+      // Add all alumni data fields
+      registrationData.append('name', formData.name.trim());
+      registrationData.append('email', formData.email.trim());
+      registrationData.append('phone', formData.phone.trim());
+      registrationData.append('batch', formData.batch.trim());
+      registrationData.append('branch', formData.branch.trim() || 'Not Specified');
+      registrationData.append('company', formData.company.trim());
+      registrationData.append('techStack', formData.techStack.trim());
+      registrationData.append('resumeLink', formData.resumeLink.trim());
+      registrationData.append('location', formData.location.trim() || 'India');
+      registrationData.append('pronouns', formData.pronouns || 'They/Them');
 
-      const data = await alumniAPI.create(payload);
+      // Send registration with image
+      const response = await axios.post('http://localhost:5000/api/alumni', registrationData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const data = response.data;
 
       setSuccess(true);
       setTimeout(() => {
@@ -85,12 +114,12 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
           branch: '',
           company: '',
           techStack: '',
-          github: '',
-          linkedin: '',
           location: 'India',
           pronouns: 'They/Them',
           resumeLink: '',
         });
+        setSelectedFile(null);
+        setImagePreview(null);
         setSuccess(false);
       }, 1500);
 
@@ -144,7 +173,42 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
               </svg>
               <span className="text-sm">Registration successful! Thank you for connecting with HBTU.</span>
             </div>
-          )}
+          )
+          }
+
+          {/* Profile Image Upload */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Profile Photo</h3>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-24 h-24 rounded-full object-cover border-2 border-orange-200"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center border-2 border-gray-200">
+                    <ImageIcon className="w-10 h-10 text-gray-400" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors border border-orange-200">
+                  <Upload className="w-4 h-4" />
+                  <span className="text-sm font-medium">Choose Photo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    disabled={loading}
+                  />
+                </label>
+                <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 5MB</p>
+              </div>
+            </div>
+          </div>
 
           {/* Personal Information */}
           <div className="space-y-4">
@@ -305,38 +369,6 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
                 disabled={loading}
               />
               <p className="text-xs text-gray-500 mt-1">Enter your primary skills separated by commas</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  GitHub Profile
-                </label>
-                <input
-                  type="url"
-                  name="github"
-                  value={formData.github}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                  placeholder="https://github.com/yourusername"
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  LinkedIn Profile
-                </label>
-                <input
-                  type="url"
-                  name="linkedin"
-                  value={formData.linkedin}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                  placeholder="https://linkedin.com/in/yourprofile"
-                  disabled={loading}
-                />
-              </div>
             </div>
 
             <div>

@@ -11,13 +11,12 @@ const alumniSchema = new mongoose.Schema({
   headline: { type: String, default: 'Alumni at HBTU' },
   company: { type: String, required: true },
   techStack: [{ type: String }],
-  socialLinks: {
-    github: { type: String, default: 'https://github.com' },
-    linkedin: { type: String, default: '' },
-  },
   resumeLink: { type: String },
   email: { type: String, required: true },
   phone: { type: String, required: true },
+  // Cloudinary image storage
+  imageUrl: { type: String, default: 'https://i.ibb.co/TqK1XTQm/image-5.jpg' },
+  cloudinaryPublicId: { type: String }, // For image deletion
 }, {
   timestamps: true
 });

@@ -1,35 +1,72 @@
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 
-// Only configure Cloudinary if credentials exist
-if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+// ============================================
+// Cloudinary Configuration (from .env)
+// ============================================
+const isConfigured = !!(
+  process.env.CLOUDINARY_CLOUD_NAME && 
+  process.env.CLOUDINARY_API_KEY && 
+  process.env.CLOUDINARY_API_SECRET
+);
+
+if (isConfigured) {
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
   });
-  console.log('✓ Cloudinary configured');
+  console.log('✓ Cloudinary configured successfully');
 } else {
-  console.log('⚠ Cloudinary credentials not found - image upload will be disabled');
+  console.warn('⚠ Cloudinary credentials missing in .env - image uploads will fail');
 }
 
-// Simple multer memory storage (store in memory temporarily)
+// ============================================
+// Multer Configuration (Memory Storage)
+// ============================================
 const storage = multer.memoryStorage();
 
-// Create multer upload instance
 const upload = multer({ 
-  storage: storage,
+  storage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB max file size
+    fileSize: 5 * 1024 * 1024 // 5MB limit
   },
   fileFilter: (req, file, cb) => {
-    // Accept images only
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed!'), false);
+      cb(new Error('Only image files are allowed'), false);
     }
   }
 });
 
-module.exports = { cloudinary, upload };
+// ============================================
+// Helper: Upload Buffer to Cloudinary
+// ============================================
+const uploadFromBuffer = (buffer, options = {}) => {
+  return new Promise((resolve, reject) => {
+    if (!isConfigured) {
+      return reject(new Error('Cloudinary not configured. Check environment variables.'));
+    }
+
+    const uploadStream = cloudinary.uploader.upload_stream(
+      options,
+      (error, result) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          return reject(error);
+        }
+        resolve(result);
+      }
+    );
+
+    uploadStream.end(buffer);
+  });
+};
+
+module.exports = { 
+  cloudinary, 
+  upload, 
+  isConfigured, 
+  uploadFromBuffer 
+};

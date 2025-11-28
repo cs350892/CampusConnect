@@ -24,6 +24,9 @@ const studentSchema = new mongoose.Schema({
   email: { type: String, required: true },
   phone: { type: String },
   techStack: { type: String },
+  // Cloudinary image storage
+  imageUrl: { type: String, default: 'https://i.ibb.co/TqK1XTQm/image-5.jpg' },
+  cloudinaryPublicId: { type: String }, // For image deletion
 }, {
   timestamps: true
 });

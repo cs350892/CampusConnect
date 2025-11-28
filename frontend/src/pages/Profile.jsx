@@ -1,16 +1,41 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { students } from '../data/students';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { studentAPI } from '../utils/api';
 
 function Profile() {
   const { id } = useParams();
-  const student = students.find((s) => s.id === parseInt(id));
+  const [student, setStudent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!student) {
+  useEffect(() => {
+    const fetchStudent = async () => {
+      try {
+        setLoading(true);
+        const data = await studentAPI.getById(id);
+        setStudent(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudent();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p className="text-gray-600">Loading student profile...</p>
+      </div>
+    );
+  }
+
+  if (error || !student) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h2 className="text-2xl font-bold text-gray-800">Student Not Found</h2>
+        <p className="text-red-600 mt-2">{error}</p>
         <Link to="/" className="text-blue-600 hover:underline mt-4 inline-block">
           Back to Home
         </Link>
@@ -20,12 +45,14 @@ function Profile() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-white rounded-lg shadow p-6">
+      {/* Student ID Card / Profile */}
+      <div className="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
         <div className="flex items-center mb-4">
           <img
-            src={student.image}
+            src={student.imageUrl || student.image || 'https://i.ibb.co/TqK1XTQm/image-5.jpg'}
             alt={student.name}
-            className="w-16 h-16 rounded-full object-cover mr-4"
+            className="w-24 h-24 rounded-full object-cover mr-4 border-4 border-blue-100"
+            onError={(e) => { e.target.src = 'https://i.ibb.co/TqK1XTQm/image-5.jpg'; }}
           />
           <div>
             <h2 className="text-2xl font-bold text-gray-800">{student.name}</h2>

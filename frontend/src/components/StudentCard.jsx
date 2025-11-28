@@ -8,9 +8,10 @@ function StudentCard({ student }) {
       {/* Header */}
       <div className="flex items-start gap-3 mb-4">
         <img
-          src={student.image || 'https://i.ibb.co/TqK1XTQm/image-5.jpg'}
+          src={student.imageUrl || student.image || 'https://i.ibb.co/TqK1XTQm/image-5.jpg'}
           alt={student.name}
           className="w-16 h-16 rounded-full object-cover border-2 border-blue-100"
+          onError={(e) => { e.target.src = 'https://i.ibb.co/TqK1XTQm/image-5.jpg'; }}
         />
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-800 mb-1">{student.name}</h3>

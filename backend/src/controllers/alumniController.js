@@ -1,4 +1,5 @@
 const AlumniModel = require('../models/alumni');
+const { uploadFromBuffer, isConfigured } = require('../utils/cloudinary');
 
 const getAllAlumni = async (req, res) => {
   try {
@@ -23,11 +24,32 @@ const getAlumniById = async (req, res) => {
 
 const createAlumni = async (req, res) => {
   try {
-    // Generate unique ID
+    // 1. Upload image to Cloudinary if provided
+    let imageUrl = 'https://i.ibb.co/TqK1XTQm/image-5.jpg'; // Default
+    let cloudinaryPublicId = null;
+
+    if (req.file && isConfigured) {
+      try {
+        console.log(`📸 Uploading alumni photo: ${req.file.originalname}`);
+        const uploadResult = await uploadFromBuffer(req.file.buffer, {
+          folder: 'campus-connect/alumni',
+          transformation: [{ width: 500, height: 500, crop: 'fill', gravity: 'face' }],
+          resource_type: 'image'
+        });
+        imageUrl = uploadResult.secure_url;
+        cloudinaryPublicId = uploadResult.public_id;
+        console.log(`✅ Image uploaded: ${imageUrl}`);
+      } catch (uploadError) {
+        console.error('⚠️  Image upload failed:', uploadError.message);
+        // Continue with default image instead of failing registration
+      }
+    }
+
+    // 2. Generate unique ID
     const lastAlumni = await AlumniModel.findOne().sort({ id: -1 });
     const newId = lastAlumni ? lastAlumni.id + 1 : 1;
 
-    // Parse techStack string into array if it's a string
+    // 3. Parse techStack string into array if it's a string
     let techStackArray = [];
     if (req.body.techStack && req.body.techStack.trim().length > 0) {
       if (Array.isArray(req.body.techStack)) {
@@ -37,6 +59,7 @@ const createAlumni = async (req, res) => {
       }
     }
 
+    // 4. Prepare alumni data
     const alumniData = {
       id: newId,
       name: req.body.name,
@@ -45,15 +68,13 @@ const createAlumni = async (req, res) => {
       batch: req.body.batch,
       company: req.body.company,
       branch: req.body.branch || 'Not Specified',
-      image: req.body.image || 'https://i.ibb.co/TqK1XTQm/image-5.jpg',
+      image: imageUrl, // Legacy field for backward compatibility
+      imageUrl: imageUrl, // New dedicated field
+      cloudinaryPublicId: cloudinaryPublicId,
       pronouns: req.body.pronouns || 'They/Them',
       location: req.body.location || 'India',
       headline: req.body.headline || `${req.body.company} Employee`,
       techStack: techStackArray,
-      socialLinks: {
-        github: req.body.socialLinks?.github || req.body.github || 'https://github.com',
-        linkedin: req.body.socialLinks?.linkedin || req.body.linkedin || ''
-      },
       resumeLink: req.body.resumeLink
     };
 

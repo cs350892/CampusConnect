@@ -94,7 +94,8 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
       registrationData.append('pronouns', formData.pronouns || 'They/Them');
 
       // Send registration with image
-      const response = await axios.post('http://localhost:5000/api/alumni', registrationData, {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await axios.post(`${API_URL}/alumni`, registrationData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

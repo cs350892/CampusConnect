@@ -104,7 +104,8 @@ function StudentRegistration({ isOpen, onClose, onSuccess }) {
       registrationData.append('linkedin', formData.linkedin.trim());
 
       // Send registration with image
-      const response = await axios.post('http://localhost:5000/api/students', registrationData, {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await axios.post(`${API_URL}/students`, registrationData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

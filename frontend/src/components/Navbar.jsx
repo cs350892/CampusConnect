@@ -41,7 +41,7 @@ function Navbar() {
             <Link
               to="/"
               className={`flex items-center space-x-1 px-3 py-2 rounded-md ${
-                location.pathname === '/' 
+                (location.pathname === '/' || location.pathname === '/students')
                   ? 'text-blue-900 font-medium'
                   : 'text-gray-600 hover:text-blue-900'
               }`}
@@ -100,7 +100,7 @@ function Navbar() {
               <Link
                 to="/"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md ${
-                  location.pathname === '/' 
+                  (location.pathname === '/' || location.pathname === '/students')
                     ? 'text-blue-900 font-medium'
                     : 'text-gray-600 hover:text-blue-900'
                 }`}

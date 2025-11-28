@@ -38,7 +38,7 @@ Complete step-by-step guide to deploy your full-stack application on Render.
    ```
    Name:               campusconnect-backend
    Region:             Singapore (or closest to you)
-   Branch:             master
+   Branch:             main
    Root Directory:     backend
    Runtime:            Node
    Build Command:      npm install
@@ -117,7 +117,7 @@ Expected response:
 
 **File: `frontend/.env.production`** (create this file)
 ```env
-VITE_API_URL=https://campusconnect-backend-xxxx.onrender.com/api
+VITE_API_URL=https://campusconnect-wpww.onrender.com/api
 ```
 
 **Commit and push:**
@@ -137,11 +137,13 @@ git push
    ```
    Name:               campusconnect-frontend
    Region:             Singapore
-   Branch:             master
+   Branch:             main
    Root Directory:     frontend
    Build Command:      npm install && npm run build
    Publish Directory:  dist
    ```
+   
+   **Note**: If you get "vite: Permission denied" error, the build script has been updated to use `npx vite build`.
 
 3. **Add Environment Variable**
    ```

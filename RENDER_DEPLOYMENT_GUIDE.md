@@ -139,11 +139,13 @@ git push
    Region:             Singapore
    Branch:             main
    Root Directory:     frontend
-   Build Command:      npm install && npm run build
+   Build Command:      npm ci && npm run build
    Publish Directory:  dist
    ```
    
-   **Note**: If you get "vite: Permission denied" error, the build script has been updated to use `npx vite build`.
+   **Important**: 
+   - Use `npm ci` instead of `npm install` for faster, cleaner builds
+   - Vite is now in dependencies (not devDependencies) to ensure it's available during build
 
 3. **Add Environment Variable**
    ```

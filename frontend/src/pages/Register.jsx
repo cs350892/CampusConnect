@@ -88,12 +88,14 @@ function Register() {
       </div>
 
       {/* Modals */}
-      {showStudentModal && (
-        <StudentRegistration onClose={() => setShowStudentModal(false)} />
-      )}
-      {showAlumniModal && (
-        <AlumniRegistration onClose={() => setShowAlumniModal(false)} />
-      )}
+      <StudentRegistration 
+        isOpen={showStudentModal}
+        onClose={() => setShowStudentModal(false)} 
+      />
+      <AlumniRegistration 
+        isOpen={showAlumniModal}
+        onClose={() => setShowAlumniModal(false)} 
+      />
     </div>
   );
 }

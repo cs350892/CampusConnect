@@ -7,7 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 seconds timeout
+  timeout: 30000, // 30 seconds timeout for Render cold starts
 });
 
 // Request interceptor - DON'T add token if it doesn't exist or is empty
@@ -27,14 +27,23 @@ api.interceptors.request.use(
 // Response interceptor for handling errors globally
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // Retry logic for timeout errors (Render cold start)
+    if (error.code === 'ECONNABORTED' && !originalRequest._retry) {
+      originalRequest._retry = true;
+      console.log('Request timeout, retrying...');
+      return api(originalRequest);
+    }
+    
     if (error.response) {
       // Server responded with error status
       const message = error.response.data?.message || error.response.data?.error || 'An error occurred';
       throw new Error(message);
     } else if (error.request) {
       // Request made but no response received
-      throw new Error('Network error. Please check your connection.');
+      throw new Error('Network error. Server might be starting up, please try again in a moment.');
     } else {
       // Something else happened
       throw new Error(error.message || 'An unexpected error occurred');

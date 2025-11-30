@@ -99,11 +99,17 @@ function Alumni() {
               <div key={alumnus.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-5 border border-gray-100">
                 {/* Header */}
                 <div className="flex items-start gap-3 mb-4">
-                  <img
-                    src={alumnus.image || 'https://i.ibb.co/TqK1XTQm/image-5.jpg'}
-                    alt={alumnus.name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-orange-100"
-                  />
+                  {alumnus.image && alumnus.image !== 'https://i.ibb.co/TqK1XTQm/image-5.jpg' ? (
+                    <img
+                      src={alumnus.image}
+                      alt={alumnus.name}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-orange-100"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-2xl border-2 border-orange-100">
+                      {alumnus.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-800 mb-1">{alumnus.name}</h3>
                     <p className="text-sm text-gray-600 mb-1">{alumnus.branch || 'MCA'}</p>
@@ -154,17 +160,15 @@ function Alumni() {
 
                 {/* LinkedIn Link */}
                 <div className="pt-3 border-t border-gray-100">
-                  {alumnus.socialLinks?.linkedin && (
-                    <a
-                      href={alumnus.socialLinks.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-2 transition-colors"
-                    >
-                      <Linkedin className="w-4 h-4" />
-                      View LinkedIn Profile
-                    </a>
-                  )}
+                  <a
+                    href={`https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(alumnus.name + ' ' + alumnus.company)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-2 transition-colors"
+                  >
+                    <Linkedin className="w-4 h-4" />
+                    View LinkedIn Profile
+                  </a>
                 </div>
               </div>
             ))

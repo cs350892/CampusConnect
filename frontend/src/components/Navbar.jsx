@@ -13,25 +13,25 @@ function Navbar() {
   return (
     <nav className="bg-white shadow-lg">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-24">
+        <div className="flex justify-between items-center min-h-24 py-2">
           {/* Logo and University Name */}
-          <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-1 mr-2">
+            <Link to="/" className="flex items-center space-x-1 sm:space-x-3">
+              <div className="flex items-center space-x-1 sm:space-x-2">
                 <img 
                   src="https://hbtu.ac.in/wp-content/uploads/2024/07/hbtu-logo-1.jpg" 
                   alt="HBTU Logo 1" 
-                  className="h-16 w-auto"
+                  className="h-12 sm:h-14 md:h-16 w-auto"
                 />
                 <img 
                   src="https://hbtu.ac.in/wp-content/uploads/2024/07/hbtu-logo-2.jpg" 
                   alt="HBTU Logo 2" 
-                  className="h-16 w-auto"
+                  className="h-12 sm:h-14 md:h-16 w-auto"
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-blue-900">Harcourt Butler Technical University</span>
-                <span className="text-sm text-gray-600">Department of Master of Computer Applications</span>
+                <span className="text-sm sm:text-base md:text-xl font-bold text-blue-900 leading-tight">Harcourt Butler Technical University</span>
+                <span className="text-xs sm:text-sm text-gray-600 leading-tight">Department of Master of Computer Applications</span>
               </div>
             </Link>
           </div>
@@ -98,8 +98,8 @@ function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
-            <button onClick={toggleMobileMenu} className="text-gray-600 hover:text-blue-900 focus:outline-none">
+          <div className="md:hidden flex items-center flex-shrink-0">
+            <button onClick={toggleMobileMenu} className="text-gray-600 hover:text-blue-900 focus:outline-none p-2">
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>

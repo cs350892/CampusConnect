@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AlumniRegistration from '../components/AlumniRegistration';
 import StudentRegistration from '../components/StudentRegistration';
+import NotableAlumni from '../components/NotableAlumni';
 import { alumniAPI } from '../utils/api';
 import { Users, Loader2, Briefcase, Code, Linkedin, Mail } from 'lucide-react';
 
@@ -56,6 +57,9 @@ function Alumni() {
           </button>
         </div>
       </div>
+
+      {/* Notable Alumni Section */}
+      <NotableAlumni />
 
       {/* Alumni Count */}
       {!loading && !error && (

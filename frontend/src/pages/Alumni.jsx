@@ -99,9 +99,9 @@ function Alumni() {
               <div key={alumnus.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-5 border border-gray-100">
                 {/* Header */}
                 <div className="flex items-start gap-3 mb-4">
-                  {alumnus.image && alumnus.image !== 'https://i.ibb.co/TqK1XTQm/image-5.jpg' ? (
+                  {alumnus.cloudinaryPublicId ? (
                     <img
-                      src={alumnus.image}
+                      src={alumnus.imageUrl || alumnus.image}
                       alt={alumnus.name}
                       className="w-16 h-16 rounded-full object-cover border-2 border-orange-100"
                     />

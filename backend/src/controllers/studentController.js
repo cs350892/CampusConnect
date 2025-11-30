@@ -25,12 +25,16 @@ const getStudentById = async (req, res) => {
 const createStudent = async (req, res) => {
   try {
     // 1. Upload image to Cloudinary if provided
-    let imageUrl = 'https://i.ibb.co/TqK1XTQm/image-5.jpg'; // Default
+    let imageUrl = null; // No default - let frontend show initials if no image
     let cloudinaryPublicId = null;
+
+    console.log('📋 Student registration request received');
+    console.log('📁 File received:', req.file ? `Yes (${req.file.originalname})` : 'No');
+    console.log('☁️  Cloudinary configured:', isConfigured);
 
     if (req.file && isConfigured) {
       try {
-        console.log(`📸 Uploading student photo: ${req.file.originalname}`);
+        console.log(`📸 Uploading student photo: ${req.file.originalname} (${req.file.size} bytes)`);
         const uploadResult = await uploadFromBuffer(req.file.buffer, {
           folder: 'campus-connect/students',
           transformation: [{ width: 500, height: 500, crop: 'fill', gravity: 'face' }],
@@ -38,10 +42,18 @@ const createStudent = async (req, res) => {
         });
         imageUrl = uploadResult.secure_url;
         cloudinaryPublicId = uploadResult.public_id;
-        console.log(`✅ Image uploaded: ${imageUrl}`);
+        console.log(`✅ Image uploaded successfully: ${imageUrl}`);
       } catch (uploadError) {
-        console.error('⚠️  Image upload failed:', uploadError.message);
-        // Continue with default image instead of failing registration
+        console.error('❌ Image upload failed:', uploadError.message);
+        console.error('Upload error details:', uploadError);
+        // Continue with null image - frontend will show initials
+      }
+    } else {
+      if (!req.file) {
+        console.log('ℹ️  No image file in request - will show initials');
+      }
+      if (!isConfigured) {
+        console.error('❌ Cloudinary not configured! Check environment variables.');
       }
     }
 

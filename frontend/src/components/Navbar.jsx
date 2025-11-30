@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, GraduationCap, ExternalLink, Menu, X, UserPlus } from 'lucide-react';
+import { Users, GraduationCap, Briefcase, ExternalLink, Menu, X, UserPlus } from 'lucide-react';
 
 function Navbar() {
   const location = useLocation();
@@ -63,6 +63,18 @@ function Navbar() {
             </Link>
 
             <Link
+              to="/jobs"
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md ${
+                location.pathname === '/jobs'
+                  ? 'text-blue-900 font-medium'
+                  : 'text-gray-600 hover:text-blue-900'
+              }`}
+            >
+              <Briefcase className="w-5 h-5" />
+              <span>Jobs</span>
+            </Link>
+
+            <Link
               to="/register"
               className={`flex items-center space-x-1 px-3 py-2 rounded-md ${
                 location.pathname === '/register'
@@ -121,6 +133,19 @@ function Navbar() {
               >
                 <GraduationCap className="w-5 h-5" />
                 <span>Alumni</span>
+              </Link>
+
+              <Link
+                to="/jobs"
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md ${
+                  location.pathname === '/jobs'
+                    ? 'text-blue-900 font-medium'
+                    : 'text-gray-600 hover:text-blue-900'
+                }`}
+                onClick={toggleMobileMenu}
+              >
+                <Briefcase className="w-5 h-5" />
+                <span>Jobs</span>
               </Link>
 
               <Link

@@ -11,7 +11,6 @@ const alumniSchema = new mongoose.Schema({
   headline: { type: String, default: 'Alumni at HBTU' },
   company: { type: String, required: true },
   techStack: [{ type: String }],
-  resumeLink: { type: String },
   email: { type: String, required: true },
   phone: { type: String, required: true },
   // Cloudinary image storage

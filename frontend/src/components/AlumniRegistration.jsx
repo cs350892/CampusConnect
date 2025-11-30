@@ -13,7 +13,6 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
     techStack: '',
     location: 'India',
     pronouns: 'They/Them',
-    resumeLink: '',
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -89,7 +88,6 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
       registrationData.append('branch', formData.branch.trim() || 'Not Specified');
       registrationData.append('company', formData.company.trim());
       registrationData.append('techStack', formData.techStack.trim());
-      registrationData.append('resumeLink', formData.resumeLink.trim());
       registrationData.append('location', formData.location.trim() || 'India');
       registrationData.append('pronouns', formData.pronouns || 'They/Them');
 
@@ -117,7 +115,6 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
           techStack: '',
           location: 'India',
           pronouns: 'They/Them',
-          resumeLink: '',
         });
         setSelectedFile(null);
         setImagePreview(null);
@@ -370,21 +367,6 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
                 disabled={loading}
               />
               <p className="text-xs text-gray-500 mt-1">Enter your primary skills separated by commas</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Resume Link
-              </label>
-              <input
-                type="url"
-                name="resumeLink"
-                value={formData.resumeLink}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                placeholder="https://drive.google.com/your-resume"
-                disabled={loading}
-              />
             </div>
           </div>
 

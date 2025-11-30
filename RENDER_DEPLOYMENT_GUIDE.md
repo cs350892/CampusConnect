@@ -172,7 +172,6 @@ git push
    ```
 4. Click **"Save Changes"**
 5. Backend will automatically redeploy
-
 ---
 
 ## ✅ Part 4: Verify Deployment

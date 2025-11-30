@@ -74,8 +74,7 @@ const createAlumni = async (req, res) => {
       pronouns: req.body.pronouns || 'They/Them',
       location: req.body.location || 'India',
       headline: req.body.headline || `${req.body.company} Employee`,
-      techStack: techStackArray,
-      resumeLink: req.body.resumeLink
+      techStack: techStackArray
     };
 
     const alumni = new AlumniModel(alumniData);

@@ -256,7 +256,7 @@ function Home() {
       </div>
 
       {/* Recruiting CTA */}
-      <div className="bg-gradient-to-r from-blue-600 to-orange-600 rounded-lg shadow-lg p-6 text-center text-white mt-8">
+      <div className="bg-gradient-to-r from-blue-300 to-orange-300 rounded-lg shadow-lg p-6 text-center text-white mt-8">
         <h2 className="text-2xl font-bold mb-2">Recruiting? Talk to TPRs Directly</h2>
         <p className="mb-4">Get instant responses and schedule campus visits</p>
         <div className="flex flex-wrap justify-center gap-3">

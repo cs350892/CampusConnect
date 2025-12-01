@@ -1,0 +1,7 @@
+
+# Markdown files
+*.md
+!README.md
+backend/*.md
+frontend/*.md
+node_modules/**/*.md

@@ -1,12 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { studentAPI } from '../utils/api';
 
 function Profile() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Check if current user is viewing their own profile
+  const isOwnProfile = () => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) return false;
+    
+    // You can decode JWT to get user ID, or store user info separately
+    // For now, we'll check if user is logged in
+    return authToken && authToken.trim() !== '' && authToken !== 'null';
+  };
+  
+  const handleUpdateProfile = () => {
+    const authToken = localStorage.getItem('authToken');
+    
+    if (!authToken || authToken.trim() === '' || authToken === 'null') {
+      // Not logged in - show alert and redirect to login/register
+      alert('Please login to update your profile');
+      navigate('/register'); // or '/login' if you have a separate login page
+      return;
+    }
+    
+    // Store student email for OTP flow
+    if (student && student.email) {
+      localStorage.setItem('otp_identifier', student.email);
+      localStorage.setItem('otp_identifier_type', 'email');
+      localStorage.setItem('otp_user_id', id);
+      navigate('/otp/send');
+    } else {
+      alert('Email not found. Cannot proceed with profile update.');
+    }
+  };
 
   useEffect(() => {
     const fetchStudent = async () => {
@@ -47,6 +79,21 @@ function Profile() {
     <div className="container mx-auto px-4 py-8">
       {/* Student ID Card / Profile */}
       <div className="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
+        {/* Update Profile Button - Show only if user is logged in */}
+        {isOwnProfile() && (
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={handleUpdateProfile}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+              Update Profile
+            </button>
+          </div>
+        )}
+        
         <div className="flex items-center mb-4">
           <img
             src={student.imageUrl || student.image || 'https://i.ibb.co/TqK1XTQm/image-5.jpg'}

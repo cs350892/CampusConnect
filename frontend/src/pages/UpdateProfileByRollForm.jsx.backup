@@ -1,0 +1,686 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { 
+  User, Mail, Phone, Hash, Building, Calendar, MapPin, 
+  Briefcase, Link as LinkIcon, FileText, Award, Code, 
+  Github, Linkedin, Save, X, CheckCircle, AlertCircle 
+} from 'lucide-react';
+
+const UpdateProfileByRollForm = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  
+  // Verification credentials
+  const [credentials, setCredentials] = useState({
+    email: '',
+    rollNumber: ''
+  });
+
+  // Form data - matching StudentRegistration form fields
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    rollNumber: '',
+    batch: '',
+    branch: '',
+    dsaProblems: 0,
+    techStack: '',
+    resumeLink: '',
+    github: '',
+    linkedin: '',
+    location: 'India',
+    pronouns: 'They/Them',
+    image: '',
+    imageUrl: '',
+    cloudinaryPublicId: ''
+  });
+
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  useEffect(() => {
+    // Load verified user data from localStorage
+    const storedUserData = localStorage.getItem('verifiedUserData');
+    const storedEmail = localStorage.getItem('verifiedEmail');
+    const storedRollNumber = localStorage.getItem('verifiedRollNumber');
+
+    if (!storedUserData || !storedEmail || !storedRollNumber) {
+      // Redirect back to verification if no data found
+      navigate('/update-profile-by-roll');
+      return;
+    }
+
+    try {
+      const userData = JSON.parse(storedUserData);
+      setCredentials({ email: storedEmail, rollNumber: storedRollNumber });
+      
+      // Prefill form with user data
+      // Prefill form with user data - matching StudentRegistration fields
+      setFormData({
+        name: userData.name || '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        rollNumber: userData.rollNumber || '',
+        batch: userData.batch || '',
+        branch: userData.branch || '',
+        dsaProblems: userData.dsaProblems || 0,
+        techStack: userData.techStack || '',
+        resumeLink: userData.resumeLink || '',
+        github: userData.socialLinks?.github || '',
+        linkedin: userData.socialLinks?.linkedin || '',
+        location: userData.location || 'India',
+        pronouns: userData.pronouns || 'They/Them',
+        image: userData.image || '',
+        imageUrl: userData.imageUrl || '',
+        cloudinaryPublicId: userData.cloudinaryPublicId || ''
+      });
+      
+      // Set image preview if exists
+      if (userData.imageUrl) {
+        setImagePreview(userData.imageUrl);
+      }ch (err) {
+      console.error('Error loading user data:', err);
+      navigate('/update-profile-by-roll');
+    }
+  }, [navigate]);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    
+    if (name.includes('.')) {
+      // Handle nested fields (socialLinks)
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setError('');
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setError('Please select an image file');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size should be less than 5MB');
+        return;
+      }
+      setSelectedFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      setError('');
+    }
+  };  setFormData({
+        ...formData,
+        skills: {
+          ...formData.skills,
+          dsa: [...formData.skills.dsa, dsaInput.trim()]
+        }
+      });
+      setDsaInput('');
+    }
+  };
+
+  const removeDsaSkill = (skill) => {
+    setFormData({
+      ...formData,
+      skills: {
+        ...formData.skills,
+        dsa: formData.skills.dsa.filter(s => s !== skill)
+      }
+    });
+  };
+
+  const addDevSkill = () => {
+    if (devInput.trim() && !formData.skills.development.includes(devInput.trim())) {
+      setFormData({
+        ...formData,
+        skills: {
+          ...formData.skills,
+          development: [...formData.skills.development, devInput.trim()]
+        }
+      });
+      setDevInput('');
+    }
+  };
+
+  const removeDevSkill = (skill) => {
+    setFormData({
+      ...formData,
+      skills: {
+        ...formData.skills,
+        development: formData.skills.development.filter(s => s !== skill)
+      }
+    });
+  };
+
+  const addTechStack = () => {
+    if (techStackInput.trim() && !formData.techStack.includes(techStackInput.trim())) {
+      setFormData({
+        ...formData,
+        techStack: [...formData.techStack, techStackInput.trim()]
+      });
+      setTechStackInput('');
+    }
+  };
+
+  const removeTechStack = (tech) => {
+    setFormData({
+      ...formData,
+      techStack: formData.techStack.filter(t => t !== tech)
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess(false);
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      
+      // Prepare update data - matching StudentRegistration form
+      const updateData = {
+        email: credentials.email,
+        rollNumber: credentials.rollNumber,
+        name: formData.name,
+        phone: formData.phone,
+        batch: formData.batch,
+        branch: formData.branch,
+        dsaProblems: parseInt(formData.dsaProblems) || 0,
+        techStack: formData.techStack,
+        resumeLink: formData.resumeLink,
+        github: formData.github,
+        linkedin: formData.linkedin,
+        location: formData.location,
+        pronouns: formData.pronouns
+      };
+      
+      // If image was uploaded, include it
+      if (selectedFile || formData.imageUrl) {
+        updateData.imageUrl = formData.imageUrl;
+        updateData.cloudinaryPublicId = formData.cloudinaryPublicId;
+      }
+
+      const response = await axios.post(
+        `${API_URL}/api/profile-verify/update`,
+        updateData
+      );
+
+      if (response.data.success) {
+        setSuccess(true);
+        setTimeout(() => {
+          localStorage.removeItem('verifiedUserData');
+          localStorage.removeItem('verifiedEmail');
+          localStorage.removeItem('verifiedRollNumber');
+          navigate('/');
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Update error:', err);
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Failed to update profile. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
+            <User className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Update Your Profile
+          </h1>
+          <p className="text-gray-600">
+            Verified as: <span className="font-semibold">{formData.email}</span>
+          </p>
+        </div>
+
+        {/* Success Message */}
+        {success && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-3">
+            <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-green-800">Profile Updated Successfully!</p>
+              <p className="text-sm text-green-700">Redirecting to home page...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3">
+            <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
+            <p className="text-red-700">{error}</p>
+          </div>
+        )}
+
+        {/* Update Form */}
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 space-y-8">
+          
+          {/* Basic Information */}
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <User className="w-5 h-5 mr-2 text-blue-500" />
+              Basic Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Email (Read-only)
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed"
+                  disabled
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Roll Number (Read-only)
+                </label>
+                <input
+                  type="text"
+                  value={formData.rollNumber}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed"
+                  disabled
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Branch
+                </label>
+                <input
+                  type="text"
+                  name="branch"
+                  value={formData.branch}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Batch Year
+                </label>
+                <input
+                  type="text"
+                  name="batch"
+                  value={formData.batch}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Pronouns
+                </label>
+                <select
+                  name="pronouns"
+                  value={formData.pronouns}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select Pronouns</option>
+                  <option value="He/Him">He/Him</option>
+                  <option value="She/Her">She/Her</option>
+                  <option value="They/Them">They/Them</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Location
+                </label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="City, Country"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isPlaced"
+                  checked={formData.isPlaced}
+                  onChange={handleChange}
+                  className="w-5 h-5 text-blue-500 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-sm font-semibold text-gray-700">Currently Placed</span>
+              </label>
+            </div>
+
+            {formData.isPlaced && (
+              <div className="mt-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Company Name
+                </label>
+                <input
+                  type="text"
+                  name="company"
+                  value={formData.company}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Profile Details */}
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <FileText className="w-5 h-5 mr-2 text-blue-500" />
+              Profile Details
+            </h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Headline
+                </label>
+                <input
+                  type="text"
+                  name="headline"
+                  value={formData.headline}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="E.g., Full Stack Developer | AI Enthusiast"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  About Me
+                </label>
+                <textarea
+                  name="about"
+                  value={formData.about}
+                  onChange={handleChange}
+                  rows="4"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  placeholder="Tell us about yourself..."
+                />
+                <p className="text-xs text-gray-500 mt-1">{formData.about.length} characters</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Skills */}
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <Award className="w-5 h-5 mr-2 text-blue-500" />
+              Skills
+            </h2>
+
+            {/* DSA Skills */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                DSA Skills
+              </label>
+              <div className="flex space-x-2 mb-2">
+                <input
+                  type="text"
+                  value={dsaInput}
+                  onChange={(e) => setDsaInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addDsaSkill())}
+                  className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="E.g., Arrays, Trees, DP"
+                />
+                <button
+                  type="button"
+                  onClick={addDsaSkill}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {formData.skills.dsa.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                  >
+                    {skill}
+                    <button
+                      type="button"
+                      onClick={() => removeDsaSkill(skill)}
+                      className="ml-2 text-blue-500 hover:text-blue-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Development Skills */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Development Skills
+              </label>
+              <div className="flex space-x-2 mb-2">
+                <input
+                  type="text"
+                  value={devInput}
+                  onChange={(e) => setDevInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addDevSkill())}
+                  className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="E.g., React, Node.js, Python"
+                />
+                <button
+                  type="button"
+                  onClick={addDevSkill}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {formData.skills.development.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm"
+                  >
+                    {skill}
+                    <button
+                      type="button"
+                      onClick={() => removeDevSkill(skill)}
+                      className="ml-2 text-green-500 hover:text-green-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Tech Stack */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Tech Stack
+              </label>
+              <div className="flex space-x-2 mb-2">
+                <input
+                  type="text"
+                  value={techStackInput}
+                  onChange={(e) => setTechStackInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechStack())}
+                  className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="E.g., MERN Stack, AWS, Docker"
+                />
+                <button
+                  type="button"
+                  onClick={addTechStack}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {formData.techStack.map((tech, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm"
+                  >
+                    {tech}
+                    <button
+                      type="button"
+                      onClick={() => removeTechStack(tech)}
+                      className="ml-2 text-purple-500 hover:text-purple-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Social Links */}
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <LinkIcon className="w-5 h-5 mr-2 text-blue-500" />
+              Social Links
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <Github className="w-4 h-4 mr-1" />
+                  GitHub
+                </label>
+                <input
+                  type="url"
+                  name="socialLinks.github"
+                  value={formData.socialLinks.github}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://github.com/username"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <Linkedin className="w-4 h-4 mr-1" />
+                  LinkedIn
+                </label>
+                <input
+                  type="url"
+                  name="socialLinks.linkedin"
+                  value={formData.socialLinks.linkedin}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://linkedin.com/in/username"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <FileText className="w-4 h-4 mr-1" />
+                Resume Link
+              </label>
+              <input
+                type="url"
+                name="resumeLink"
+                value={formData.resumeLink}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="https://drive.google.com/..."
+              />
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex space-x-4 pt-4">
+            <button
+              type="submit"
+              disabled={loading || success}
+              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Updating...</span>
+                </>
+              ) : success ? (
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  <span>Updated Successfully!</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5" />
+                  <span>Save Changes</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/update-profile-by-roll')}
+              className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default UpdateProfileByRollForm;

@@ -1,0 +1,391 @@
+# OTP-Based Profile Update System - Complete Guide
+
+## 🎯 Overview
+Secure OTP verification system for profile updates without authentication.
+
+## 🔐 Security Features
+
+### 1. **OTP Hashing**
+- OTPs stored as bcrypt hash (never plain text)
+- 10 salt rounds for encryption
+- Comparison using secure bcrypt.compare()
+
+### 2. **Time-Based Expiry**
+- OTP valid for exactly 5 minutes
+- MongoDB TTL index auto-deletes expired OTPs
+- Session token expires with OTP
+
+### 3. **Rate Limiting**
+- Max 5 OTP requests per 30 minutes per identifier
+- Prevents brute force attacks
+- Returns 429 status when limit exceeded
+
+### 4. **Attempt Limiting**
+- Max 5 verification attempts per OTP
+- Auto-deletes OTP after 5 failed attempts
+- Shows remaining attempts in error message
+
+### 5. **Session Token**
+- Cryptographically random 32-byte token
+- Required for profile update
+- Valid only during OTP expiry window
+
+## 📡 API Endpoints
+
+### 1. Send OTP
+```http
+POST /api/otp/send
+Content-Type: application/json
+
+{
+  "identifier": "user@example.com",
+  "type": "email"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "OTP sent successfully to your email",
+  "expiresIn": "5 minutes"
+}
+```
+
+### 2. Verify OTP
+```http
+POST /api/otp/verify
+Content-Type: application/json
+
+{
+  "identifier": "user@example.com",
+  "type": "email",
+  "otp": "123456"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "OTP verified successfully",
+  "allowUpdate": true,
+  "sessionToken": "abc123...",
+  "expiresIn": "5 minutes"
+}
+```
+
+### 3. Update Profile
+```http
+POST /api/otp/update-profile
+Content-Type: application/json
+
+{
+  "identifier": "user@example.com",
+  "type": "email",
+  "sessionToken": "abc123...",
+  "name": "Updated Name",
+  "headline": "Full Stack Developer",
+  "techStack": ["React", "Node.js"],
+  "socialLinks": {
+    "github": "https://github.com/user",
+    "linkedin": "https://linkedin.com/in/user"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Profile updated successfully",
+  "user": { /* updated user object */ }
+}
+```
+
+### 4. Resend OTP
+```http
+POST /api/otp/resend
+Content-Type: application/json
+
+{
+  "identifier": "user@example.com",
+  "type": "email"
+}
+```
+
+## 🗄️ Database Schema
+
+### Otp Model
+```javascript
+{
+  identifier: String,        // email or phone
+  identifierType: String,    // 'email' or 'phone'
+  otp: String,              // bcrypt hashed
+  expiresAt: Date,          // 5 minutes from creation
+  attempts: Number,         // verification attempts (max 5)
+  verified: Boolean,        // true after successful verification
+  sessionToken: String,     // for profile update
+  createdAt: Date          // for rate limiting
+}
+```
+
+**Indexes:**
+- `identifier` - fast lookup
+- `expiresAt` - TTL index (auto-delete)
+
+## 🎨 Frontend Flow
+
+### Page 1: Enter Email/Phone
+```jsx
+<OtpSendPage />
+- Input: email or phone
+- Validates with backend
+- Sends OTP
+- Redirects to verification page
+```
+
+### Page 2: Verify OTP
+```jsx
+<OtpVerifyPage />
+- Shows countdown timer (5 minutes)
+- 6-digit OTP input
+- Max 5 attempts
+- Resend option after 1 minute
+- Stores session token on success
+```
+
+### Page 3: Update Profile
+```jsx
+<ProfileUpdatePage />
+- Full profile update form
+- Uses session token for auth
+- Updates allowed fields only
+- Redirects on success
+```
+
+## 🚀 Setup Instructions
+
+### Backend Setup
+
+1. **Environment Variables** (.env):
+```env
+# Email Configuration (Required for OTP)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+EMAIL_FROM=CampusConnect <noreply@campusconnect.com>
+```
+
+2. **Gmail App Password**:
+   - Enable 2FA on Gmail
+   - Generate App Password
+   - Use in EMAIL_PASS
+
+3. **Start Server**:
+```bash
+cd backend
+npm install
+npm start
+```
+
+### Frontend Setup
+
+1. **Environment Variables** (.env):
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+2. **Install & Run**:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+3. **Add Routes** (App.jsx):
+```jsx
+import OtpSendPage from './components/OtpSendPage';
+import OtpVerifyPage from './components/OtpVerifyPage';
+import ProfileUpdatePage from './components/ProfileUpdatePage';
+
+<Route path="/otp/send" element={<OtpSendPage />} />
+<Route path="/otp/verify" element={<OtpVerifyPage />} />
+<Route path="/otp/update-profile" element={<ProfileUpdatePage />} />
+```
+
+## 🧪 Testing
+
+### Automated Testing:
+```bash
+cd backend
+node test-otp-apis.js
+```
+
+### Manual Testing:
+1. Open `http://localhost:5173/otp/send`
+2. Enter existing user email
+3. Check email for OTP
+4. Enter OTP on verification page
+5. Update profile on final page
+
+### Postman Testing:
+```
+1. POST /api/otp/send
+   Body: { "identifier": "test@test.com", "type": "email" }
+
+2. Check email for OTP
+
+3. POST /api/otp/verify
+   Body: { "identifier": "test@test.com", "type": "email", "otp": "123456" }
+   
+4. Copy sessionToken from response
+
+5. POST /api/otp/update-profile
+   Body: { 
+     "identifier": "test@test.com", 
+     "type": "email",
+     "sessionToken": "copied_token",
+     "name": "Updated Name"
+   }
+```
+
+## 📊 Rate Limiting Details
+
+### Rules:
+- 5 OTP requests per 30 minutes
+- Counter based on `identifier`
+- Resets after 30 minutes
+
+### Implementation:
+```javascript
+// Check last 30 minutes
+const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+const count = await Otp.countDocuments({
+  identifier,
+  createdAt: { $gte: thirtyMinutesAgo }
+});
+
+if (count >= 5) {
+  return 429; // Too Many Requests
+}
+```
+
+## 🛡️ Security Best Practices
+
+### ✅ Implemented:
+- OTP hashing with bcrypt
+- Time-based expiry (5 min)
+- Rate limiting (5 OTP/30 min)
+- Attempt limiting (5 tries)
+- Session token validation
+- Auto-cleanup of expired OTPs
+- Field whitelisting for updates
+
+### 🔒 Additional Recommendations:
+1. Add IP-based rate limiting
+2. Implement CAPTCHA for repeated failures
+3. Log all OTP activities for audit
+4. Add email verification for new emails
+5. Implement device fingerprinting
+6. Add SMS OTP as backup (Twilio)
+
+## 📱 SMS Integration (Optional)
+
+To enable SMS OTP:
+
+1. **Install Twilio**:
+```bash
+npm install twilio
+```
+
+2. **Configure** (.env):
+```env
+TWILIO_ACCOUNT_SID=your_account_sid
+TWILIO_AUTH_TOKEN=your_auth_token
+TWILIO_PHONE_NUMBER=+1234567890
+```
+
+3. **Update sendOtp.js**:
+Uncomment Twilio code in `sendOtpSMS` function
+
+## 🐛 Common Issues
+
+### Issue 1: OTP Email Not Received
+**Solution:**
+- Check spam folder
+- Verify EMAIL_USER and EMAIL_PASS in .env
+- Ensure 2FA + App Password enabled on Gmail
+- Check nodemailer logs
+
+### Issue 2: Rate Limit Errors
+**Solution:**
+- Wait 30 minutes
+- Or manually delete OTP records from MongoDB:
+```javascript
+db.otps.deleteMany({ identifier: "user@example.com" })
+```
+
+### Issue 3: Session Token Invalid
+**Solution:**
+- OTP expired (>5 minutes)
+- Verify OTP again to get new session token
+- Check system time sync
+
+### Issue 4: Profile Update Fails
+**Solution:**
+- Verify session token is not expired
+- Check field names match schema
+- Ensure user exists with that identifier
+
+## 📈 Monitoring & Logs
+
+### Key Metrics to Track:
+- OTP send success rate
+- OTP verification success rate
+- Average verification time
+- Rate limit hits
+- Failed verification attempts
+- Profile update success rate
+
+### Log Examples:
+```
+✅ OTP email sent to user@example.com
+⚠️  Rate limit hit for user@example.com
+❌ Invalid OTP attempt (3/5 remaining)
+✅ Profile updated for user@example.com
+```
+
+## 🎯 Future Enhancements
+
+1. **Multi-channel OTP**
+   - Email + SMS fallback
+   - WhatsApp OTP
+
+2. **Biometric Verification**
+   - Fingerprint on mobile
+   - Face ID integration
+
+3. **Advanced Security**
+   - Device recognition
+   - Location-based validation
+   - Anomaly detection
+
+4. **Better UX**
+   - Auto-fill OTP from SMS
+   - QR code verification
+   - Remember device option
+
+## 📞 Support
+
+For issues or questions:
+1. Check this guide
+2. Review error messages carefully
+3. Test with Postman first
+4. Check MongoDB for OTP records
+5. Verify email configuration
+
+---
+
+**Created with ❤️ for CampusConnect**

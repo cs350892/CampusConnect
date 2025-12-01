@@ -126,6 +126,24 @@ const userSchema = new mongoose.Schema({
   },
   lastLogin: { type: Date },
   
+  // OTP Fields for Profile Update (No login required)
+  otp: { 
+    type: String, 
+    select: false 
+  },
+  otpExpire: { 
+    type: Date, 
+    select: false 
+  },
+  otpRequestCount: { 
+    type: Number, 
+    default: 0 
+  },
+  otpRequestResetTime: { 
+    type: Date, 
+    default: Date.now 
+  },
+  
 }, {
   timestamps: true  // createdAt, updatedAt automatically add hoga
 });
@@ -150,7 +168,47 @@ userSchema.methods.getPublicProfile = function() {
   const userObject = this.toObject();
   delete userObject.password;
   delete userObject.__v;
+  delete userObject.otp;
+  delete userObject.otpExpire;
   return userObject;
+};
+
+// OTP Methods for Profile Update System
+userSchema.methods.generateOTP = function() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+userSchema.methods.hashOTP = async function(otp) {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(otp, salt);
+};
+
+userSchema.methods.compareOTP = async function(enteredOtp) {
+  return await bcrypt.compare(enteredOtp, this.otp);
+};
+
+userSchema.methods.isOTPExpired = function() {
+  return Date.now() > this.otpExpire;
+};
+
+userSchema.methods.checkRateLimit = function() {
+  const oneHourAgo = Date.now() - 60 * 60 * 1000;
+  
+  if (this.otpRequestResetTime < oneHourAgo) {
+    this.otpRequestCount = 0;
+    this.otpRequestResetTime = Date.now();
+    return true;
+  }
+  
+  if (this.otpRequestCount >= 5) {
+    return false;
+  }
+  
+  return true;
+};
+
+userSchema.methods.incrementRateLimit = function() {
+  this.otpRequestCount += 1;
 };
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, GraduationCap, Briefcase, ExternalLink, Menu, X, UserPlus } from 'lucide-react';
+import { Users, GraduationCap, Briefcase, ExternalLink, Menu, X, UserPlus, Edit3 } from 'lucide-react';
 
 function Navbar() {
   const location = useLocation();
@@ -75,6 +75,18 @@ function Navbar() {
             </Link>
 
             <Link
+              to="/update-profile-by-roll"
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md bg-gradient-to-r from-green-600 to-teal-600 text-white hover:from-green-700 hover:to-teal-700 shadow-md hover:shadow-lg transition-all ${
+                location.pathname.startsWith('/update-profile-by-roll')
+                  ? 'ring-2 ring-green-300'
+                  : ''
+              }`}
+            >
+              <Edit3 className="w-5 h-5" />
+              <span>Update Profile</span>
+            </Link>
+
+            <Link
               to="/register"
               className={`flex items-center space-x-1 px-3 py-2 rounded-md ${
                 location.pathname === '/register'
@@ -146,6 +158,15 @@ function Navbar() {
               >
                 <Briefcase className="w-5 h-5" />
                 <span>Jobs</span>
+              </Link>
+
+              <Link
+                to="/update-profile-by-roll"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md bg-gradient-to-r from-green-600 to-teal-600 text-white hover:from-green-700 hover:to-teal-700"
+                onClick={toggleMobileMenu}
+              >
+                <Edit3 className="w-5 h-5" />
+                <span>Update Profile</span>
               </Link>
 
               <Link

@@ -6,6 +6,15 @@ import Alumni from './pages/Alumni';
 import Jobs from './pages/Jobs';
 import Register from './pages/Register';
 import Navbar from './components/Navbar';
+import OtpSendPage from './components/OtpSendPage';
+import OtpVerifyPage from './components/OtpVerifyPage';
+import ProfileUpdatePage from './components/ProfileUpdatePage';
+import UpdateProfileStart from './pages/UpdateProfileStart';
+import VerifyOtp from './pages/VerifyOtp';
+import UpdateProfileForm from './pages/UpdateProfileForm';
+import UpdateProfileByRoll from './pages/UpdateProfileByRoll';
+import UpdateProfileByRollForm from './pages/UpdateProfileByRollForm';
+import VerifyOTPForUpdate from './pages/VerifyOTPForUpdate';
 
 function App() {
   return (
@@ -19,6 +28,21 @@ function App() {
           <Route path="/alumni" element={<Alumni />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/register" element={<Register />} />
+          
+          {/* OTP Flow Routes (Old - keep for compatibility) */}
+          <Route path="/otp/send" element={<OtpSendPage />} />
+          <Route path="/otp/verify" element={<OtpVerifyPage />} />
+          <Route path="/otp/update-profile" element={<ProfileUpdatePage />} />
+          
+          {/* Update Profile Routes (New OTP-based system) */}
+          <Route path="/update-profile/start" element={<UpdateProfileStart />} />
+          <Route path="/update-profile/verify-otp" element={<VerifyOtp />} />
+          <Route path="/update-profile/form" element={<UpdateProfileForm />} />
+          
+          {/* Update Profile Routes (Email + Roll Number + OTP based system) */}
+          <Route path="/update-profile-by-roll" element={<UpdateProfileByRoll />} />
+          <Route path="/update-profile-by-roll/verify-otp" element={<VerifyOTPForUpdate />} />
+          <Route path="/update-profile-by-roll/form" element={<UpdateProfileByRollForm />} />
         </Routes>
       </div>
     </BrowserRouter>

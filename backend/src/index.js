@@ -13,7 +13,10 @@ const alumniRoutes = require('./routes/alumniRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const referralRoutes = require('./routes/referralRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const otpRoutes = require('./routes/otpRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const profileUpdateRoutes = require('./routes/profileUpdateRoutes');
+const profileVerifyRoutes = require('./routes/profileVerifyRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -55,7 +58,16 @@ app.get('/api/health', (req, res) => {
 
 // API Routes - with error handling for debugging
 try {
-  // IMPORTANT: Load upload routes FIRST (public routes, no auth needed during registration)
+  // IMPORTANT: Load specific path routes FIRST before generic /api routes
+  console.log('Loading profileVerifyRoutes (PUBLIC - NO AUTH)...');
+  app.use('/api/profile-verify', profileVerifyRoutes);
+  console.log('✓ profileVerifyRoutes loaded');
+  
+  console.log('Loading profileUpdateRoutes...');
+  app.use('/api/profile-update', profileUpdateRoutes);
+  console.log('✓ profileUpdateRoutes loaded');
+  
+  // Load upload routes FIRST (public routes, no auth needed during registration)
   console.log('Loading uploadRoutes (PUBLIC)...');
   app.use('/api', uploadRoutes);
   console.log('✓ uploadRoutes loaded');
@@ -63,6 +75,10 @@ try {
   console.log('Loading authRoutes...');
   app.use('/api', authRoutes);
   console.log('✓ authRoutes loaded');
+  
+  console.log('Loading otpRoutes...');
+  app.use('/api', otpRoutes);
+  console.log('✓ otpRoutes loaded');
   
   console.log('Loading studentRoutes...');
   app.use('/api', studentRoutes);

@@ -6,7 +6,9 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "seed": "node src/seed.js",
-    "migrate-alumni": "node migrate-alumni.js"
+    "migrate-alumni": "node migrate-alumni.js",
+    "build": "cd ../frontend && npm install && npm run build",
+    "postinstall": "npm run build"
   },
   "keywords": [],
   "author": "",

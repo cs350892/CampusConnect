@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
 import axios from 'axios';
+import { getApiUrl } from '../utils/config';
 
 function AlumniRegistration({ isOpen, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -72,8 +73,6 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
     setLoading(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      
       // Create FormData for multipart/form-data with image upload
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name.trim());
@@ -92,7 +91,7 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
       }
 
       const response = await axios.post(
-        `${API_URL}/api/alumni`, 
+        `${getApiUrl()}/alumni`, 
         formDataToSend,
         {
           headers: {

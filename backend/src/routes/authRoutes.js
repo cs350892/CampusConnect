@@ -26,10 +26,11 @@ const registerValidation = [
   body('batch').notEmpty().withMessage('Batch is required')
 ];
 
-// Login validation
+// Login validation (supports both password and rollNumber)
 const loginValidation = [
   body('email').isEmail().withMessage('Valid email is required'),
-  body('password').notEmpty().withMessage('Password is required')
+  // Password OR rollNumber required (at least one)
+  body('rollNumber').optional().trim()
 ];
 
 // Public routes

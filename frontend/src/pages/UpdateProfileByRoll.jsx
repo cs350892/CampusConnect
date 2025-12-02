@@ -26,11 +26,9 @@ const UpdateProfileByRoll = () => {
     setError('');
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      
       // Step 1: Send OTP to email
       const response = await axios.post(
-        `${API_URL}/api/profile-verify/send-otp`,
+        `${getApiUrl()}/profile-verify/send-otp`,
         {
           email: formData.email.trim(),
           rollNumber: formData.rollNumber.trim()

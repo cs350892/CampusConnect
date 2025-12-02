@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { CheckCircle, XCircle, Users, GraduationCap, LogOut, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, User, Mail, Calendar, LogOut, RefreshCw } from 'lucide-react';
+import { getApiUrl } from '../utils/config';
 
 const SimpleAdminDashboard = () => {
   const [students, setStudents] = useState([]);
@@ -24,7 +25,7 @@ const SimpleAdminDashboard = () => {
   const fetchPendingEntries = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/admin/pending-entries`);
+      const response = await axios.get(`${getApiUrl()}/admin/pending-entries`);
       setStudents(response.data.students || []);
       setAlumni(response.data.alumni || []);
     } catch (error) {
@@ -38,10 +39,10 @@ const SimpleAdminDashboard = () => {
     setProcessing(id);
     try {
       const endpoint = type === 'student' 
-        ? `/api/admin/approve-student/${id}`
-        : `/api/admin/approve-alumni/${id}`;
+        ? `/admin/approve-student/${id}`
+        : `/admin/approve-alumni/${id}`;
       
-      await axios.post(`${API_URL}${endpoint}`);
+      await axios.post(`${getApiUrl()}${endpoint}`);
       
       // Remove from list
       if (type === 'student') {
@@ -62,10 +63,10 @@ const SimpleAdminDashboard = () => {
     setProcessing(id);
     try {
       const endpoint = type === 'student'
-        ? `/api/admin/reject-student/${id}`
-        : `/api/admin/reject-alumni/${id}`;
+        ? `/admin/reject-student/${id}`
+        : `/admin/reject-alumni/${id}`;
       
-      await axios.post(`${API_URL}${endpoint}`);
+      await axios.post(`${getApiUrl()}${endpoint}`);
       
       // Remove from list
       if (type === 'student') {

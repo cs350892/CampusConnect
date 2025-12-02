@@ -33,10 +33,8 @@ const VerifyOTPForUpdate = () => {
     setError('');
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      
       const response = await axios.post(
-        `${API_URL}/api/profile-verify/verify-otp`,
+        `${getApiUrl()}/profile-verify/verify-otp`,
         {
           email: email,
           rollNumber: rollNumber,
@@ -69,10 +67,8 @@ const VerifyOTPForUpdate = () => {
     setError('');
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      
       const response = await axios.post(
-        `${API_URL}/api/profile-verify/send-otp`,
+        `${getApiUrl()}/profile-verify/send-otp`,
         {
           email: email,
           rollNumber: rollNumber

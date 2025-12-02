@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { getApiUrl } from '../utils/config';
 import { 
   User, Phone, Building, Calendar, MapPin, 
   Link as LinkIcon, FileText, Code, 
@@ -105,11 +106,10 @@ const UpdateProfileByRollForm = () => {
 
     setUploadingImage(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       const imageFormData = new FormData();
       imageFormData.append('image', selectedFile);
 
-      const response = await axios.post(`${API_URL}/api/upload`, imageFormData, {
+      const response = await axios.post(`${getApiUrl()}/upload`, imageFormData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
@@ -137,8 +137,6 @@ const UpdateProfileByRollForm = () => {
     setSuccess(false);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      
       // Upload image first if new image selected
       let imageData = {};
       if (selectedFile) {
@@ -152,7 +150,7 @@ const UpdateProfileByRollForm = () => {
         }
       }
       
-      const response = await axios.post(`${API_URL}/api/profile-verify/update`, {
+      const response = await axios.post(`${getApiUrl()}/profile-verify/update`, {
         email: credentials.email,
         rollNumber: credentials.rollNumber,
         name: formData.name.trim(),

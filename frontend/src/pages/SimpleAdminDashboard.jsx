@@ -24,7 +24,7 @@ const SimpleAdminDashboard = () => {
   const fetchPendingEntries = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/admin/pending-entries`);
+      const response = await axios.get(`${API_URL}/admin/pending-entries`);
       setStudents(response.data.students || []);
       setAlumni(response.data.alumni || []);
     } catch (error) {
@@ -38,8 +38,8 @@ const SimpleAdminDashboard = () => {
     setProcessing(id);
     try {
       const endpoint = type === 'student' 
-        ? `/api/admin/approve-student/${id}`
-        : `/api/admin/approve-alumni/${id}`;
+        ? `/admin/approve-student/${id}`
+        : `/admin/approve-alumni/${id}`;
       
       await axios.post(`${API_URL}${endpoint}`);
       
@@ -62,8 +62,8 @@ const SimpleAdminDashboard = () => {
     setProcessing(id);
     try {
       const endpoint = type === 'student'
-        ? `/api/admin/reject-student/${id}`
-        : `/api/admin/reject-alumni/${id}`;
+        ? `/admin/reject-student/${id}`
+        : `/admin/reject-alumni/${id}`;
       
       await axios.post(`${API_URL}${endpoint}`);
       

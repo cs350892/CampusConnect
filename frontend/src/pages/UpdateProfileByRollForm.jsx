@@ -109,7 +109,7 @@ const UpdateProfileByRollForm = () => {
       const imageFormData = new FormData();
       imageFormData.append('image', selectedFile);
 
-      const response = await axios.post(`${API_URL}/api/upload`, imageFormData, {
+      const response = await axios.post(`${API_URL}/upload`, imageFormData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
@@ -152,7 +152,7 @@ const UpdateProfileByRollForm = () => {
         }
       }
       
-      const response = await axios.post(`${API_URL}/api/profile-verify/update`, {
+      const response = await axios.post(`${API_URL}/profile-verify/update`, {
         email: credentials.email,
         rollNumber: credentials.rollNumber,
         name: formData.name.trim(),

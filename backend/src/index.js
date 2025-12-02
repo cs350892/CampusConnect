@@ -106,7 +106,7 @@ try {
   console.log('✓ referralRoutes loaded');
   
   console.log('Loading adminRoutes...');
-  app.use('/api', adminRoutes);
+  app.use('/api/admin', adminRoutes);
   console.log('✓ adminRoutes loaded');
   
   console.log('Loading approvalRoutes (ADMIN APPROVAL SYSTEM)...');

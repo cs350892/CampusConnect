@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Lock, Mail } from 'lucide-react';
+import { getApiUrl } from '../utils/config';
 
 const SimpleAdminLogin = () => {
   const [email, setEmail] = useState('');

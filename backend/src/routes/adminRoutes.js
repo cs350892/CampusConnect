@@ -30,36 +30,36 @@ const { isAuthenticated, isAdmin } = require('../middlewares/auth');
  */
 
 // ========== PUBLIC ROUTES (NO AUTH) ==========
-// Simple admin login
-router.post('/admin/simple-login', simpleAdminLogin);
+// Simple admin login (NO /admin prefix - it's added by index.js)
+router.post('/simple-login', simpleAdminLogin);
 
 // Simple approval routes (no JWT - just for quick admin panel)
-router.get('/admin/pending-entries', getPendingEntries);
-router.post('/admin/approve-student/:id', approveStudent);
-router.post('/admin/approve-alumni/:id', approveAlumniSimple);
-router.post('/admin/reject-student/:id', rejectStudent);
-router.post('/admin/reject-alumni/:id', rejectAlumniSimple);
+router.get('/pending-entries', getPendingEntries);
+router.post('/approve-student/:id', approveStudent);
+router.post('/approve-alumni/:id', approveAlumniSimple);
+router.post('/reject-student/:id', rejectStudent);
+router.post('/reject-alumni/:id', rejectAlumniSimple);
 
 // All routes below require admin authentication
 router.use(isAuthenticated, isAdmin);
 
 // Dashboard
-router.get('/admin/stats', getDashboardStats);
-router.get('/admin/activity-logs', getActivityLogs);
+router.get('/stats', getDashboardStats);
+router.get('/activity-logs', getActivityLogs);
 
 // Alumni management
-router.get('/admin/alumni', getAllAlumni);
-router.get('/admin/alumni/pending', getPendingAlumni);
-router.put('/admin/alumni/:id/approve', approveAlumni);
-router.put('/admin/alumni/:id/reject', rejectAlumni);
-router.post('/admin/alumni/bulk-approve', bulkApproveAlumni);
-router.post('/admin/alumni/bulk-reject', bulkRejectAlumni);
+router.get('/alumni', getAllAlumni);
+router.get('/alumni/pending', getPendingAlumni);
+router.put('/alumni/:id/approve', approveAlumni);
+router.put('/alumni/:id/reject', rejectAlumni);
+router.post('/alumni/bulk-approve', bulkApproveAlumni);
+router.post('/alumni/bulk-reject', bulkRejectAlumni);
 
 // Job management
-router.get('/admin/jobs/pending', getPendingJobs);
-router.post('/admin/jobs/bulk-approve', bulkApproveJobs);
+router.get('/jobs/pending', getPendingJobs);
+router.post('/jobs/bulk-approve', bulkApproveJobs);
 
 // Referral management
-router.get('/admin/referrals', getAllReferrals);
+router.get('/referrals', getAllReferrals);
 
 module.exports = router;

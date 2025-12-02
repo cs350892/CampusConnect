@@ -122,14 +122,38 @@ try {
 const frontendBuildPath = path.join(__dirname, '../../frontend/dist');
 console.log(`📁 Serving static files from: ${frontendBuildPath}`);
 
-// Serve static files
-app.use(express.static(frontendBuildPath));
+// Serve static files with proper configuration
+app.use(express.static(frontendBuildPath, {
+  maxAge: '1d',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      // Don't cache HTML files
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
 // SPA catch-all - MUST come after API routes
 app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+  // Don't serve index.html for API routes
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({
+      success: false,
+      message: 'API route not found'
+    });
   }
+  
+  // For all other routes, serve index.html
+  const indexPath = path.join(frontendBuildPath, 'index.html');
+  console.log(`📄 Serving SPA: ${req.path} -> index.html`);
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      res.status(500).send('Error loading application');
+    }
+  });
 });
 
 // API 404 handler

@@ -3,6 +3,7 @@ const PendingRegistration = require('../models/PendingRegistration');
 const jwt = require('jsonwebtoken');
 const ActivityLog = require('../models/ActivityLog');
 const bcrypt = require('bcryptjs');
+const { cloudinary } = require('../utils/cloudinary');
 
 /**
  * AUTH CONTROLLER
@@ -232,16 +233,41 @@ exports.getMe = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const allowedFields = [
-      'name', 'phone', 'image', 'pronouns', 'location', 'headline',
-      'resumeLink', 'techStack', 'socialLinks'
+      'name', 'phone', 'image', 'imageUrl', 'cloudinaryPublicId', 'pronouns', 
+      'location', 'headline', 'resumeLink', 'techStack', 'socialLinks'
     ];
     
     const updates = {};
-    allowedFields.forEach(field => {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
+    
+    // Get current user to check for old image
+    const currentUser = await User.findById(req.user._id);
+    
+    // Handle image update with old image deletion
+    if (req.body.cloudinaryPublicId && req.body.cloudinaryPublicId !== currentUser.cloudinaryPublicId) {
+      // Delete old image from Cloudinary if exists
+      if (currentUser.cloudinaryPublicId) {
+        try {
+          console.log(`🗑️  Deleting old profile image: ${currentUser.cloudinaryPublicId}`);
+          await cloudinary.uploader.destroy(currentUser.cloudinaryPublicId);
+          console.log(`✅ Old profile image deleted from Cloudinary`);
+        } catch (deleteError) {
+          console.error('⚠️  Failed to delete old image:', deleteError.message);
+          // Continue with update even if deletion fails
+        }
       }
-    });
+      
+      // Update with new image data
+      updates.image = req.body.image;
+      updates.imageUrl = req.body.imageUrl;
+      updates.cloudinaryPublicId = req.body.cloudinaryPublicId;
+    } else {
+      // Regular field updates
+      allowedFields.forEach(field => {
+        if (req.body[field] !== undefined && !['image', 'imageUrl', 'cloudinaryPublicId'].includes(field)) {
+          updates[field] = req.body[field];
+        }
+      });
+    }
     
     // Students can update DSA problems and isPlaced
     if (req.user.role === 'student') {

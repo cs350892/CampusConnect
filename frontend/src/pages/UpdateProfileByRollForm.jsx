@@ -115,9 +115,9 @@ const UpdateProfileByRollForm = () => {
 
       if (response.data.success) {
         return {
-          image: response.data.imageUrl,
-          imageUrl: response.data.imageUrl,
-          cloudinaryPublicId: response.data.cloudinaryPublicId
+          image: response.data.data.url,
+          imageUrl: response.data.data.url,
+          cloudinaryPublicId: response.data.data.public_id
         };
       }
       return null;

@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Student = require('../models/student');
 const sendEmail = require('../utils/sendEmail');
 const crypto = require('crypto');
+const { cloudinary } = require('../utils/cloudinary');
 
 // Temporary OTP storage (in production, use Redis or database)
 const otpStore = new Map();
@@ -342,11 +343,36 @@ exports.updateProfile = async (req, res) => {
     }
     
     // Image fields (from Cloudinary upload)
-    if (image !== undefined) updateData.image = image;
-    if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
-    if (cloudinaryPublicId !== undefined) updateData.cloudinaryPublicId = cloudinaryPublicId;
+    // If new image is uploaded, delete old image from Cloudinary
+    if (cloudinaryPublicId !== undefined && cloudinaryPublicId !== user.cloudinaryPublicId) {
+      // Delete old image from Cloudinary if exists
+      if (user.cloudinaryPublicId) {
+        try {
+          console.log(`🗑️  Deleting old image: ${user.cloudinaryPublicId}`);
+          await cloudinary.uploader.destroy(user.cloudinaryPublicId);
+          console.log(`✅ Old image deleted from Cloudinary`);
+        } catch (deleteError) {
+          console.error('⚠️  Failed to delete old image:', deleteError.message);
+          // Continue with update even if deletion fails
+        }
+      }
+      
+      // Update with new image data
+      updateData.image = image;
+      updateData.imageUrl = imageUrl;
+      updateData.cloudinaryPublicId = cloudinaryPublicId;
+    } else if (image !== undefined) {
+      // If image URL provided without public_id (legacy support)
+      updateData.image = image;
+      if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+    }
     
     let updatedUser;
+    
+    // Force timestamp update for cache busting
+    updateData.updatedAt = new Date();
+    
+    console.log('📝 Updating profile with data:', JSON.stringify(updateData, null, 2));
     
     // Update in the correct table
     if (isUserTable) {
@@ -362,6 +388,14 @@ exports.updateProfile = async (req, res) => {
         { new: true, runValidators: true }
       );
     }
+    
+    console.log('✅ Profile updated successfully:', {
+      id: updatedUser._id,
+      name: updatedUser.name,
+      imageUrl: updatedUser.imageUrl,
+      cloudinaryPublicId: updatedUser.cloudinaryPublicId,
+      updatedAt: updatedUser.updatedAt
+    });
     
     // Clear OTP after successful update
     otpStore.delete(key);

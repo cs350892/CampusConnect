@@ -34,13 +34,18 @@ const uploadImage = async (req, res) => {
 
     console.log(`✅ Image uploaded successfully: ${result.secure_url}`);
 
-    // 4. Return success response
+    // 4. Add version parameter to prevent browser caching
+    const urlWithVersion = `${result.secure_url}?v=${result.version || Date.now()}`;
+
+    // 5. Return success response
     return res.status(200).json({
       success: true,
       message: 'Image uploaded successfully',
       data: {
-        url: result.secure_url,
+        url: urlWithVersion,
+        originalUrl: result.secure_url,
         public_id: result.public_id,
+        version: result.version,
         width: result.width,
         height: result.height,
         format: result.format,

@@ -46,6 +46,13 @@ const userSchema = new mongoose.Schema({
     type: String, 
     default: 'https://i.ibb.co/TqK1XTQm/image-5.jpg' 
   },
+  imageUrl: { 
+    type: String, 
+    default: 'https://i.ibb.co/TqK1XTQm/image-5.jpg' 
+  },
+  cloudinaryPublicId: { 
+    type: String 
+  },
   pronouns: { 
     type: String, 
     default: 'They/Them' 

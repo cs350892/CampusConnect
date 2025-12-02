@@ -121,21 +121,40 @@ try {
 // Serve static files from React build folder
 const frontendBuildPath = path.join(__dirname, '../../frontend/dist');
 console.log(`📁 Serving static files from: ${frontendBuildPath}`);
-app.use(express.static(frontendBuildPath));
+app.use(express.static(frontendBuildPath, { 
+  index: false,
+  setHeaders: (res, filepath) => {
+    if (filepath.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html');
+    }
+  }
+}));
 
 // Catch-all route - serves index.html for all non-API routes
 // This allows React Router to handle client-side routing
-app.get('*', (req, res) => {
-  // Only serve index.html for non-API routes
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
-  } else {
-    // API route not found
-    res.status(404).json({
-      success: false,
-      message: 'API route not found'
-    });
+app.get('*', (req, res, next) => {
+  // Skip API routes
+  if (req.path.startsWith('/api')) {
+    return next();
   }
+  
+  // Serve index.html for all other routes
+  const indexPath = path.join(frontendBuildPath, 'index.html');
+  console.log(`Serving index.html for route: ${req.path}`);
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      res.status(500).send('Error loading page');
+    }
+  });
+});
+
+// API 404 handler - must come after catch-all
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'API route not found'
+  });
 });
 
 // Global error handling middleware

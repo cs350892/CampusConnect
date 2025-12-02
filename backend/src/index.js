@@ -49,11 +49,20 @@ app.use(express.urlencoded({ extended: true }));
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log(`  ➜ Origin: ${req.headers.origin}`);
+  
   if (req.path.includes('register')) {
     console.log('🔍 REGISTRATION REQUEST DETECTED');
     console.log('  ➜ Full URL:', req.originalUrl);
     console.log('  ➜ Headers:', JSON.stringify(req.headers, null, 2));
   }
+  
+  if (req.path.includes('send-otp') || req.path.includes('verify-otp')) {
+    console.log('🔐 OTP REQUEST DETECTED');
+    console.log('  ➜ Full URL:', req.originalUrl);
+    console.log('  ➜ Body:', JSON.stringify(req.body, null, 2));
+  }
+  
   next();
 });
 

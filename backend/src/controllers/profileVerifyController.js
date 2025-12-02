@@ -96,11 +96,17 @@ exports.sendOTP = async (req, res) => {
       </div>
     `;
     
+    console.log('📧 Attempting to send OTP email...');
+    console.log('  ➜ To:', normalizedEmail);
+    console.log('  ➜ OTP:', otp);
+    
     await sendEmail({
       to: normalizedEmail,
       subject: 'Profile Update OTP - CampusConnect',
       html: emailHtml
     });
+    
+    console.log('✅ OTP email sent successfully!');
     
     res.status(200).json({
       success: true,
@@ -109,11 +115,15 @@ exports.sendOTP = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Send OTP error:', error);
+    console.error('❌ Send OTP error:', error);
+    console.error('  ➜ Error message:', error.message);
+    console.error('  ➜ Error stack:', error.stack);
+    
     res.status(500).json({
       success: false,
       message: 'Failed to send OTP',
-      error: error.message
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };

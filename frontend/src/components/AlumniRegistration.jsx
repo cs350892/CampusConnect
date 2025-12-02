@@ -72,32 +72,34 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
     setLoading(true);
 
     try {
-      // Create FormData for multipart upload (image + data together)
-      const registrationData = new FormData();
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       
-      // Add image file if selected
+      // Create FormData for multipart/form-data with image upload
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name.trim());
+      formDataToSend.append('email', formData.email.trim());
+      formDataToSend.append('phone', formData.phone.trim());
+      formDataToSend.append('batch', formData.batch.trim());
+      formDataToSend.append('branch', formData.branch.trim() || 'Not Specified');
+      formDataToSend.append('company', formData.company.trim());
+      formDataToSend.append('techStack', formData.techStack.trim());
+      formDataToSend.append('location', formData.location.trim());
+      formDataToSend.append('pronouns', formData.pronouns);
+      
+      // Add image if selected
       if (selectedFile) {
-        registrationData.append('image', selectedFile);
+        formDataToSend.append('image', selectedFile);
       }
-      
-      // Add all alumni data fields
-      registrationData.append('name', formData.name.trim());
-      registrationData.append('email', formData.email.trim());
-      registrationData.append('phone', formData.phone.trim());
-      registrationData.append('batch', formData.batch.trim());
-      registrationData.append('branch', formData.branch.trim() || 'Not Specified');
-      registrationData.append('company', formData.company.trim());
-      registrationData.append('techStack', formData.techStack.trim());
-      registrationData.append('location', formData.location.trim() || 'India');
-      registrationData.append('pronouns', formData.pronouns || 'They/Them');
 
-      // Send registration with image
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const response = await axios.post(`${API_URL}/alumni`, registrationData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.post(
+        `${API_URL}/api/alumni`, 
+        formDataToSend,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
       const data = response.data;
 
@@ -119,11 +121,11 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
         setSelectedFile(null);
         setImagePreview(null);
         setSuccess(false);
-      }, 1500);
+      }, 2500);
 
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.message || 'Failed to register. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Failed to register. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -169,7 +171,7 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
               <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <span className="text-sm">Registration successful! Thank you for connecting with HBTU.</span>
+              <span className="text-sm">✅ Registration submitted successfully! Waiting for admin approval.</span>
             </div>
           )
           }

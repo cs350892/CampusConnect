@@ -637,3 +637,195 @@ exports.getActivityLogs = async (req, res) => {
     });
   }
 };
+
+// ========== SIMPLE ADMIN APPROVAL SYSTEM ==========
+
+const Student = require('../models/student');
+const Alumni = require('../models/alumni');
+
+// @desc    Admin Login (Simple - hardcoded)
+// @route   POST /api/admin/simple-login
+// @access  Public
+exports.simpleAdminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'cs350892@gmail.com';
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Chandra@5009';
+    
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      res.status(200).json({
+        success: true,
+        message: 'Admin login successful',
+        admin: { email: ADMIN_EMAIL, role: 'admin' }
+      });
+    } else {
+      res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Login failed',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Get all pending students and alumni
+// @route   GET /api/admin/pending-entries
+// @access  Private (Admin)
+exports.getPendingEntries = async (req, res) => {
+  try {
+    const pendingStudents = await Student.find({ status: 'pending' })
+      .select('name email rollNumber batch branch phone techStack createdAt')
+      .sort({ createdAt: -1 });
+    
+    const pendingAlumni = await Alumni.find({ status: 'pending' })
+      .select('name email phone batch branch company techStack createdAt')
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json({
+      success: true,
+      students: pendingStudents,
+      alumni: pendingAlumni,
+      totalPending: pendingStudents.length + pendingAlumni.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch pending entries',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Approve student
+// @route   POST /api/admin/approve-student/:id
+// @access  Private (Admin)
+exports.approveStudent = async (req, res) => {
+  try {
+    const student = await Student.findByIdAndUpdate(
+      req.params.id,
+      { status: 'approved', approvedAt: new Date() },
+      { new: true }
+    );
+    
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Student approved successfully',
+      student
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to approve student',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Approve alumni
+// @route   POST /api/admin/approve-alumni/:id
+// @access  Private (Admin)
+exports.approveAlumni = async (req, res) => {
+  try {
+    const alumni = await Alumni.findByIdAndUpdate(
+      req.params.id,
+      { status: 'approved', approvedAt: new Date() },
+      { new: true }
+    );
+    
+    if (!alumni) {
+      return res.status(404).json({
+        success: false,
+        message: 'Alumni not found'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Alumni approved successfully',
+      alumni
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to approve alumni',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Reject student
+// @route   POST /api/admin/reject-student/:id
+// @access  Private (Admin)
+exports.rejectStudent = async (req, res) => {
+  try {
+    const student = await Student.findByIdAndUpdate(
+      req.params.id,
+      { status: 'rejected' },
+      { new: true }
+    );
+    
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Student rejected',
+      student
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reject student',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Reject alumni
+// @route   POST /api/admin/reject-alumni/:id
+// @access  Private (Admin)
+exports.rejectAlumni = async (req, res) => {
+  try {
+    const alumni = await Alumni.findByIdAndUpdate(
+      req.params.id,
+      { status: 'rejected' },
+      { new: true }
+    );
+    
+    if (!alumni) {
+      return res.status(404).json({
+        success: false,
+        message: 'Alumni not found'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Alumni rejected',
+      alumni
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reject alumni',
+      error: error.message
+    });
+  }
+};

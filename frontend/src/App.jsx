@@ -15,6 +15,9 @@ import UpdateProfileForm from './pages/UpdateProfileForm';
 import UpdateProfileByRoll from './pages/UpdateProfileByRoll';
 import UpdateProfileByRollForm from './pages/UpdateProfileByRollForm';
 import VerifyOTPForUpdate from './pages/VerifyOTPForUpdate';
+import AdminDashboard from './pages/AdminDashboard';
+import SimpleAdminLogin from './pages/SimpleAdminLogin';
+import SimpleAdminDashboard from './pages/SimpleAdminDashboard';
 
 function App() {
   return (
@@ -28,6 +31,11 @@ function App() {
           <Route path="/alumni" element={<Alumni />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/register" element={<Register />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/login" element={<SimpleAdminLogin />} />
+          <Route path="/admin/simple-dashboard" element={<SimpleAdminDashboard />} />
           
           {/* OTP Flow Routes (Old - keep for compatibility) */}
           <Route path="/otp/send" element={<OtpSendPage />} />

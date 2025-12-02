@@ -3,7 +3,8 @@ const { uploadFromBuffer, isConfigured } = require('../utils/cloudinary');
 
 const getAllStudents = async (req, res) => {
   try {
-    const students = await StudentModel.find();
+    // Only show approved students on public frontend
+    const students = await StudentModel.find({ status: 'approved' });
     res.status(200).json(students);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching students', error: error.message });
@@ -12,9 +13,10 @@ const getAllStudents = async (req, res) => {
 
 const getStudentById = async (req, res) => {
   try {
-    const student = await StudentModel.findOne({ id: req.params.id });
+    // Only show approved student profile
+    const student = await StudentModel.findOne({ id: req.params.id, status: 'approved' });
     if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
+      return res.status(404).json({ message: 'Student not found or pending approval' });
     }
     res.status(200).json(student);
   } catch (error) {
@@ -91,7 +93,8 @@ const createStudent = async (req, res) => {
       resumeLink: req.body.resumeLink,
       dsaProblems: req.body.dsaProblems || 0,
       techStack: req.body.techStack,
-      isPlaced: req.body.isPlaced || false
+      isPlaced: req.body.isPlaced || false,
+      status: 'pending' // Requires admin approval
     };
 
     const student = new StudentModel(studentData);

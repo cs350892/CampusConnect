@@ -13,6 +13,7 @@ const alumniRoutes = require('./routes/alumniRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const referralRoutes = require('./routes/referralRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const approvalRoutes = require('./routes/approvalRoutes');
 const otpRoutes = require('./routes/otpRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const profileUpdateRoutes = require('./routes/profileUpdateRoutes');
@@ -44,6 +45,11 @@ app.use(express.urlencoded({ extended: true }));
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  if (req.path.includes('register')) {
+    console.log('🔍 REGISTRATION REQUEST DETECTED');
+    console.log('  ➜ Full URL:', req.originalUrl);
+    console.log('  ➜ Headers:', JSON.stringify(req.headers, null, 2));
+  }
   next();
 });
 
@@ -99,6 +105,10 @@ try {
   console.log('Loading adminRoutes...');
   app.use('/api', adminRoutes);
   console.log('✓ adminRoutes loaded');
+  
+  console.log('Loading approvalRoutes (ADMIN APPROVAL SYSTEM)...');
+  app.use('/api/admin-approval', approvalRoutes);
+  console.log('✓ approvalRoutes loaded');
 } catch (error) {
   console.error('Error loading routes:', error);
   throw error;
@@ -164,14 +174,23 @@ mongoose
     console.log('✅ Connected to MongoDB');
     console.log(`📊 Database: ${mongoose.connection.name}`);
     
-    app.listen(PORT, '0.0.0.0', () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
       console.log('='.repeat(50));
       console.log(`🚀 CampusConnect Backend Server Started`);
       console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🌐 Server URL: http://localhost:${PORT}`);
       console.log(`🔗 API Base: http://localhost:${PORT}/api`);
       console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
+      console.log(`📌 Server is listening on port ${PORT}`);
+      console.log(`📌 Bound to address: ${server.address().address}:${server.address().port}`);
       console.log('='.repeat(50));
+    });
+    
+    server.on('error', (err) => {
+      console.error('❌ Server error:', err);
+      if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use`);
+      }
     });
   })
   .catch((error) => {
@@ -187,6 +206,9 @@ process.on('unhandledRejection', (err) => {
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error('❌ Uncaught Exception:', err.message);
-  process.exit(1);
+  console.error('❌ Uncaught Exception:');
+  console.error(err);
+  console.error('Stack:', err.stack);
+  // Don't exit immediately to debug
+  // process.exit(1);
 });

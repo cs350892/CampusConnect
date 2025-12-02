@@ -27,6 +27,15 @@ const studentSchema = new mongoose.Schema({
   // Cloudinary image storage
   imageUrl: { type: String, default: 'https://i.ibb.co/TqK1XTQm/image-5.jpg' },
   cloudinaryPublicId: { type: String }, // For image deletion
+  // Admin approval fields
+  status: { 
+    type: String, 
+    enum: ['pending', 'approved', 'rejected'], 
+    default: 'pending' 
+  },
+  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  approvedAt: { type: Date },
+  rejectionReason: { type: String }
 }, {
   timestamps: true
 });

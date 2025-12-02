@@ -11,7 +11,14 @@ const {
   bulkApproveJobs,
   getDashboardStats,
   getAllReferrals,
-  getActivityLogs
+  getActivityLogs,
+  // Simple admin approval
+  simpleAdminLogin,
+  getPendingEntries,
+  approveStudent,
+  approveAlumni: approveAlumniSimple,
+  rejectStudent,
+  rejectAlumni: rejectAlumniSimple
 } = require('../controllers/adminController');
 
 const { isAuthenticated, isAdmin } = require('../middlewares/auth');
@@ -22,7 +29,18 @@ const { isAuthenticated, isAdmin } = require('../middlewares/auth');
  * All admin panel operations
  */
 
-// All routes require admin authentication
+// ========== PUBLIC ROUTES (NO AUTH) ==========
+// Simple admin login
+router.post('/admin/simple-login', simpleAdminLogin);
+
+// Simple approval routes (no JWT - just for quick admin panel)
+router.get('/admin/pending-entries', getPendingEntries);
+router.post('/admin/approve-student/:id', approveStudent);
+router.post('/admin/approve-alumni/:id', approveAlumniSimple);
+router.post('/admin/reject-student/:id', rejectStudent);
+router.post('/admin/reject-alumni/:id', rejectAlumniSimple);
+
+// All routes below require admin authentication
 router.use(isAuthenticated, isAdmin);
 
 // Dashboard

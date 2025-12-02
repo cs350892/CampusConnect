@@ -3,7 +3,8 @@ const { uploadFromBuffer, isConfigured } = require('../utils/cloudinary');
 
 const getAllAlumni = async (req, res) => {
   try {
-    const alumni = await AlumniModel.find();
+    // Only show approved alumni on public frontend
+    const alumni = await AlumniModel.find({ status: 'approved' });
     res.status(200).json(alumni);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching alumni', error: error.message });
@@ -12,9 +13,10 @@ const getAllAlumni = async (req, res) => {
 
 const getAlumniById = async (req, res) => {
   try {
-    const alumni = await AlumniModel.findOne({ id: req.params.id });
+    // Only show approved alumni profile
+    const alumni = await AlumniModel.findOne({ id: req.params.id, status: 'approved' });
     if (!alumni) {
-      return res.status(404).json({ message: 'Alumni not found' });
+      return res.status(404).json({ message: 'Alumni not found or pending approval' });
     }
     res.status(200).json(alumni);
   } catch (error) {
@@ -74,7 +76,8 @@ const createAlumni = async (req, res) => {
       pronouns: req.body.pronouns || 'They/Them',
       location: req.body.location || 'India',
       headline: req.body.headline || `${req.body.company} Employee`,
-      techStack: techStackArray
+      techStack: techStackArray,
+      status: 'pending' // Requires admin approval
     };
 
     const alumni = new AlumniModel(alumniData);

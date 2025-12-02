@@ -1,12 +1,15 @@
 const User = require('../models/User');
+const PendingRegistration = require('../models/PendingRegistration');
 const jwt = require('jsonwebtoken');
 const ActivityLog = require('../models/ActivityLog');
+const bcrypt = require('bcryptjs');
 
 /**
  * AUTH CONTROLLER
  * Explanation: User registration, login, logout ke functions
  * - JWT token generate karta hai
- * - Student auto-approved, Alumni needs admin approval
+ * - ALL registrations go to PendingRegistration first
+ * - Admin approval required before moving to User model
  */
 
 // Generate JWT Token
@@ -16,7 +19,7 @@ const generateToken = (id) => {
   });
 };
 
-// @desc    Register a new user
+// @desc    Register a new user (Saved in PendingRegistration, NOT in User)
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = async (req, res) => {
@@ -24,13 +27,22 @@ exports.register = async (req, res) => {
     const {
       name, email, password, role, phone,
       // Student fields
-      rollNumber, branch, batch, techStack, resumeLink,
+      rollNumber, branch, batch, techStack, resumeLink, image,
       // Alumni fields
       company
     } = req.body;
     
-    // Check if user already exists
+    // Check if already registered (in PendingRegistration OR User)
+    const existingPending = await PendingRegistration.findOne({ email });
     const existingUser = await User.findOne({ email });
+    
+    if (existingPending) {
+      return res.status(400).json({
+        success: false,
+        message: `Registration already submitted. Status: ${existingPending.status}. Please wait for admin approval.`
+      });
+    }
+    
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -61,55 +73,49 @@ exports.register = async (req, res) => {
       });
     }
     
-    // Create user
-    const userData = {
+    // Hash password before storing
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create pending registration data
+    const pendingData = {
       name,
       email,
-      password,
+      password: hashedPassword, // Store hashed password
       role,
       phone,
       batch,
-      branch
+      branch,
+      status: 'pending',
+      submittedAt: new Date(),
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('user-agent')
     };
     
     // Add role-specific fields
     if (role === 'student') {
-      userData.rollNumber = rollNumber;
-      userData.techStack = techStack ? techStack.split(',').map(t => t.trim()) : [];
-      userData.resumeLink = resumeLink;
+      pendingData.rollNumber = rollNumber;
+      pendingData.techStack = techStack ? (Array.isArray(techStack) ? techStack : techStack.split(',').map(t => t.trim())) : [];
+      pendingData.resumeLink = resumeLink;
+      pendingData.image = image;
     } else if (role === 'alumni') {
-      userData.company = company;
-      userData.techStack = techStack ? techStack.split(',').map(t => t.trim()) : [];
+      pendingData.company = company;
+      pendingData.techStack = techStack ? (Array.isArray(techStack) ? techStack : techStack.split(',').map(t => t.trim())) : [];
+      pendingData.image = image;
     }
     
-    const user = await User.create(userData);
-    
-    // Log activity
-    await ActivityLog.logActivity({
-      performedBy: user._id,
-      action: role === 'alumni' ? 'alumni_registered' : 'user_registered',
-      targetModel: 'User',
-      targetId: user._id,
-      details: `${role} registered: ${name}`,
-      newStatus: role === 'alumni' ? 'pending' : 'approved'
-    });
-    
-    // Generate token
-    const token = generateToken(user._id);
-    
-    // Send appropriate response based on role
-    const message = role === 'alumni' 
-      ? 'Registration successful! Your account is pending admin approval.'
-      : 'Registration successful!';
+    // Save to PendingRegistration (NOT User model)
+    const pending = await PendingRegistration.create(pendingData);
     
     res.status(201).json({
       success: true,
-      message,
-      token,
-      user: user.getPublicProfile()
+      message: '✅ Registration submitted successfully! Your request is pending admin approval. You will receive an email once approved.',
+      pendingId: pending._id,
+      status: 'pending',
+      submittedAt: pending.submittedAt
     });
     
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(400).json({
       success: false,
       message: 'Registration failed',

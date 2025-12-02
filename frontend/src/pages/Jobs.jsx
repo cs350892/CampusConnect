@@ -18,7 +18,9 @@ function Jobs() {
     try {
       setLoading(true);
       setError(null);
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const API_URL = import.meta.env.VITE_API_URL 
+        ? `${import.meta.env.VITE_API_URL}/api`
+        : 'http://localhost:5000/api';
       const response = await axios.get(`${API_URL}/jobs`);
       setJobs(response.data.jobs || []);
     } catch (err) {

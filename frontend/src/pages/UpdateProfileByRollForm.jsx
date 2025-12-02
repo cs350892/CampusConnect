@@ -109,12 +109,13 @@ const UpdateProfileByRollForm = () => {
       const imageFormData = new FormData();
       imageFormData.append('image', selectedFile);
 
-      const response = await axios.post(`${API_URL}/upload`, imageFormData, {
+      const response = await axios.post(`${API_URL}/api/upload`, imageFormData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       if (response.data.success) {
         return {
+          image: response.data.imageUrl,
           imageUrl: response.data.imageUrl,
           cloudinaryPublicId: response.data.cloudinaryPublicId
         };
@@ -144,6 +145,7 @@ const UpdateProfileByRollForm = () => {
         const uploadResult = await uploadImage();
         if (uploadResult) {
           imageData = {
+            image: uploadResult.image,
             imageUrl: uploadResult.imageUrl,
             cloudinaryPublicId: uploadResult.cloudinaryPublicId
           };

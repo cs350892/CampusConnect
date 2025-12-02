@@ -110,129 +110,126 @@ function OtpVerifyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f9f9f9', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div style={{ width: '100%', maxWidth: '400px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '25px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#333', marginBottom: '8px' }}>
             Verify OTP
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p style={{ color: '#666', fontSize: '14px', marginBottom: '4px' }}>
             Enter the 6-digit code sent to
-            <br />
-            <span className="font-medium text-indigo-600">{identifier}</span>
           </p>
+          <p style={{ color: '#4F46E5', fontSize: '14px', fontWeight: '500' }}>{identifier}</p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {/* OTP Input */}
-          <div>
-            <label htmlFor="otp" className="sr-only">
+        <form onSubmit={handleSubmit} style={{ backgroundColor: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#555', textAlign: 'center' }}>
               Enter OTP
             </label>
             <input
-              id="otp"
-              name="otp"
               type="text"
               inputMode="numeric"
               maxLength="6"
               required
-              className="appearance-none rounded relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 text-center text-2xl tracking-widest font-bold focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
               placeholder="000000"
               value={otp}
               onChange={handleOtpChange}
               autoComplete="off"
+              style={{
+                width: '100%',
+                padding: '14px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '24px',
+                textAlign: 'center',
+                letterSpacing: '8px',
+                fontWeight: '600'
+              }}
             />
           </div>
 
-          {/* Timer */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <p style={{ fontSize: '14px', color: '#666' }}>
               {timer > 0 ? (
-                <>
-                  Time remaining: <span className="font-bold text-indigo-600">{formatTime(timer)}</span>
-                </>
+                <>Time remaining: <strong style={{ color: '#4F46E5' }}>{formatTime(timer)}</strong></>
               ) : (
-                <span className="text-red-600 font-medium">OTP expired</span>
+                <span style={{ color: '#c00', fontWeight: '500' }}>OTP expired</span>
               )}
             </p>
           </div>
 
-          {/* Error Message */}
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-red-800">{error}</p>
-                </div>
-              </div>
+            <div style={{ padding: '12px', backgroundColor: '#fee', border: '1px solid #fcc', borderRadius: '4px', marginBottom: '15px' }}>
+              <p style={{ color: '#c00', fontSize: '14px', margin: 0, textAlign: 'center' }}>{error}</p>
             </div>
           )}
 
-          {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              disabled={loading || timer === 0}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Verifying...
-                </span>
-              ) : (
-                'Verify OTP'
-              )}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading || timer === 0}
+            style={{
+              width: '100%',
+              padding: '12px',
+              backgroundColor: (loading || timer === 0) ? '#999' : '#4F46E5',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '15px',
+              fontWeight: '500',
+              cursor: (loading || timer === 0) ? 'not-allowed' : 'pointer',
+              marginBottom: '15px'
+            }}
+          >
+            {loading ? 'Verifying...' : 'Verify OTP'}
+          </button>
 
-          {/* Resend OTP */}
-          <div className="text-center">
+          <div style={{ textAlign: 'center', marginBottom: '15px' }}>
             <button
               type="button"
               onClick={handleResendOtp}
-              disabled={resendLoading || timer > 240} // Can resend after 1 minute
-              className="text-sm font-medium text-indigo-600 hover:text-indigo-500 disabled:text-gray-400 disabled:cursor-not-allowed"
+              disabled={resendLoading || timer > 240}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: (resendLoading || timer > 240) ? '#999' : '#4F46E5',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: (resendLoading || timer > 240) ? 'not-allowed' : 'pointer',
+                textDecoration: 'underline'
+              }}
             >
               {resendLoading ? 'Resending...' : 'Resend OTP'}
             </button>
             {timer > 240 && (
-              <p className="text-xs text-gray-500 mt-1">
+              <p style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>
                 Available in {formatTime(timer - 240)}
               </p>
             )}
           </div>
 
-          {/* Back Button */}
-          <div className="text-center">
+          <div style={{ textAlign: 'center' }}>
             <button
               type="button"
               onClick={() => navigate('/otp/send')}
-              className="text-sm font-medium text-gray-600 hover:text-gray-800"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#666',
+                fontSize: '14px',
+                cursor: 'pointer'
+              }}
             >
-              ← Back to enter email/phone
+              ← Change email/phone
             </button>
           </div>
-        </form>
 
-        {/* Info Box */}
-        <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-yellow-700">
-                <strong>Tip:</strong> Check your spam/junk folder if you haven't received the OTP via email.
-              </p>
-            </div>
+          <div style={{ marginTop: '20px', padding: '12px', backgroundColor: '#fffbea', borderLeft: '3px solid #fbbf24', borderRadius: '4px' }}>
+            <p style={{ fontSize: '13px', color: '#555', margin: 0 }}>
+              <strong>Tip:</strong> Check spam folder if you haven't received the OTP.
+            </p>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

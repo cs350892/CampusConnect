@@ -112,264 +112,232 @@ function ProfileUpdatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Update Your Profile
+    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '40px 20px' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: '600', color: '#333', marginBottom: '8px' }}>
+            Update Profile
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Fill in the details you want to update
+          <p style={{ color: '#666', fontSize: '15px' }}>
+            Update your information below
           </p>
         </div>
 
-        <form className="mt-8 space-y-6 bg-white shadow-md rounded-lg p-8" onSubmit={handleSubmit}>
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
+        <form onSubmit={handleSubmit} style={{ backgroundColor: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          
+          {/* Basic Info */}
+          <div style={{ marginBottom: '30px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '500', color: '#333', marginBottom: '15px', borderBottom: '2px solid #e0e0e0', paddingBottom: '8px' }}>
+              Basic Information
+            </h3>
             
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Full Name
-                </label>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>Name</label>
                 <input
                   type="text"
                   name="name"
-                  id="name"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={formData.name}
                   onChange={handleChange}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
                 />
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                  Phone Number
-                </label>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>Phone</label>
                 <input
                   type="tel"
                   name="phone"
-                  id="phone"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={formData.phone}
                   onChange={handleChange}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
                 />
               </div>
 
               <div>
-                <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
-                  Branch
-                </label>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>Branch</label>
                 <input
                   type="text"
                   name="branch"
-                  id="branch"
-                  placeholder="e.g., CSE, IT, ECE"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={formData.branch}
                   onChange={handleChange}
+                  placeholder="CSE, IT, ECE"
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
                 />
               </div>
 
               <div>
-                <label htmlFor="batch" className="block text-sm font-medium text-gray-700">
-                  Batch
-                </label>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>Batch</label>
                 <input
                   type="text"
                   name="batch"
-                  id="batch"
-                  placeholder="e.g., 2024"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={formData.batch}
                   onChange={handleChange}
+                  placeholder="2024"
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
                 />
               </div>
             </div>
 
-            <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                Location
-              </label>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>Location</label>
               <input
                 type="text"
                 name="location"
-                id="location"
-                placeholder="e.g., Delhi, India"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 value={formData.location}
                 onChange={handleChange}
+                placeholder="City, State"
+                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
               />
             </div>
 
             <div>
-              <label htmlFor="headline" className="block text-sm font-medium text-gray-700">
-                Headline
-              </label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>Headline</label>
               <input
                 type="text"
                 name="headline"
-                id="headline"
-                placeholder="e.g., Full Stack Developer | MERN Stack"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 value={formData.headline}
                 onChange={handleChange}
+                placeholder="Full Stack Developer | MERN Stack"
+                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
               />
             </div>
           </div>
 
           {/* Technical Details */}
-          <div className="space-y-4 pt-6 border-t border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Technical Details</h3>
+          <div style={{ marginBottom: '30px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '500', color: '#333', marginBottom: '15px', borderBottom: '2px solid #e0e0e0', paddingBottom: '8px' }}>
+              Skills & Links
+            </h3>
             
-            <div>
-              <label htmlFor="techStack" className="block text-sm font-medium text-gray-700">
-                Tech Stack (comma-separated)
-              </label>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>Skills (comma separated)</label>
               <input
                 type="text"
                 name="techStack"
-                id="techStack"
-                placeholder="e.g., React, Node.js, MongoDB"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 value={formData.techStack}
                 onChange={handleChange}
+                placeholder="React, Node.js, MongoDB"
+                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
               />
             </div>
 
-            <div>
-              <label htmlFor="resumeLink" className="block text-sm font-medium text-gray-700">
-                Resume Link
-              </label>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>Resume Link</label>
               <input
                 type="url"
                 name="resumeLink"
-                id="resumeLink"
-                placeholder="https://drive.google.com/your-resume"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 value={formData.resumeLink}
                 onChange={handleChange}
+                placeholder="https://drive.google.com/..."
+                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
               />
             </div>
-          </div>
 
-          {/* Social Links */}
-          <div className="space-y-4 pt-6 border-t border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Social Links</h3>
-            
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
               <div>
-                <label htmlFor="github" className="block text-sm font-medium text-gray-700">
-                  GitHub Profile
-                </label>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>GitHub</label>
                 <input
                   type="url"
                   name="github"
-                  id="github"
-                  placeholder="https://github.com/username"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={formData.github}
                   onChange={handleChange}
+                  placeholder="https://github.com/username"
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
                 />
               </div>
 
               <div>
-                <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700">
-                  LinkedIn Profile
-                </label>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>LinkedIn</label>
                 <input
                   type="url"
                   name="linkedin"
-                  id="linkedin"
-                  placeholder="https://linkedin.com/in/username"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={formData.linkedin}
                   onChange={handleChange}
+                  placeholder="https://linkedin.com/in/username"
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
                 />
               </div>
             </div>
           </div>
 
-          {/* Student/Alumni Specific */}
-          <div className="space-y-4 pt-6 border-t border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Additional Information</h3>
+          {/* Additional Info */}
+          <div style={{ marginBottom: '25px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '500', color: '#333', marginBottom: '15px', borderBottom: '2px solid #e0e0e0', paddingBottom: '8px' }}>
+              Additional Details
+            </h3>
             
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
               <div>
-                <label htmlFor="dsaProblems" className="block text-sm font-medium text-gray-700">
-                  DSA Problems Solved (Students)
-                </label>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>DSA Problems Solved</label>
                 <input
                   type="number"
                   name="dsaProblems"
-                  id="dsaProblems"
-                  min="0"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={formData.dsaProblems}
                   onChange={handleChange}
+                  min="0"
+                  placeholder="0"
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
                 />
               </div>
 
               <div>
-                <label htmlFor="company" className="block text-sm font-medium text-gray-700">
-                  Current Company (Alumni)
-                </label>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#555' }}>Current Company</label>
                 <input
                   type="text"
                   name="company"
-                  id="company"
-                  placeholder="e.g., Google"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={formData.company}
                   onChange={handleChange}
+                  placeholder="Google, Microsoft, etc"
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
                 />
               </div>
             </div>
 
-            <div className="flex items-center">
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               <input
                 type="checkbox"
                 name="isPlaced"
                 id="isPlaced"
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                 checked={formData.isPlaced}
                 onChange={handleChange}
+                style={{ width: '16px', height: '16px', marginRight: '8px' }}
               />
-              <label htmlFor="isPlaced" className="ml-2 block text-sm text-gray-900">
-                I am currently placed (Students)
+              <label htmlFor="isPlaced" style={{ fontSize: '14px', color: '#555' }}>
+                Currently Placed
               </label>
             </div>
           </div>
 
-          {/* Error Message */}
+          {/* Messages */}
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-red-800">{error}</p>
-                </div>
-              </div>
+            <div style={{ padding: '12px', backgroundColor: '#fee', border: '1px solid #fcc', borderRadius: '4px', marginBottom: '20px' }}>
+              <p style={{ color: '#c00', fontSize: '14px', margin: 0 }}>{error}</p>
             </div>
           )}
 
-          {/* Success Message */}
           {success && (
-            <div className="rounded-md bg-green-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-green-800">{success}</p>
-                </div>
-              </div>
+            <div style={{ padding: '12px', backgroundColor: '#efe', border: '1px solid #cfc', borderRadius: '4px', marginBottom: '20px' }}>
+              <p style={{ color: '#080', fontSize: '14px', margin: 0 }}>{success}</p>
             </div>
           )}
 
-          {/* Submit Button */}
-          <div className="flex space-x-4">
+          {/* Buttons */}
+          <div style={{ display: 'flex', gap: '15px' }}>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
+              style={{
+                flex: 1,
+                padding: '12px',
+                backgroundColor: loading ? '#999' : '#4F46E5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '15px',
+                fontWeight: '500',
+                cursor: loading ? 'not-allowed' : 'pointer'
+              }}
             >
               {loading ? 'Updating...' : 'Update Profile'}
             </button>
@@ -377,7 +345,17 @@ function ProfileUpdatePage() {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              style={{
+                flex: 1,
+                padding: '12px',
+                backgroundColor: 'white',
+                color: '#666',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '15px',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
             >
               Cancel
             </button>

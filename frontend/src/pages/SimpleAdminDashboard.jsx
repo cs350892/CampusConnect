@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { CheckCircle, XCircle, User, Mail, Calendar, LogOut, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, User, Mail, Calendar, LogOut, RefreshCw, Users, GraduationCap } from 'lucide-react';
 import { getApiUrl } from '../utils/config';
 
 const SimpleAdminDashboard = () => {

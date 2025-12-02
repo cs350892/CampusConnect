@@ -138,12 +138,25 @@ app.use(express.static(frontendBuildPath, {
 
 // Catch-all route - serves index.html for all non-API routes
 app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api') || req.path.includes('.')) {
+  // Skip API routes and static files
+  if (req.path.startsWith('/api')) {
     return next();
   }
   
+  // Skip if requesting actual files (with extensions)
+  const ext = path.extname(req.path);
+  if (ext && ext !== '.html') {
+    return next();
+  }
+  
+  // Serve index.html with no-cache headers
   const indexPath = path.join(frontendBuildPath, 'index.html');
-  res.setHeader('Cache-Control', 'no-cache');
+  res.set({
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'Surrogate-Control': 'no-store'
+  });
   res.sendFile(indexPath);
 });
 

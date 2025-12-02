@@ -35,18 +35,26 @@ const UpdateProfileByRoll = () => {
         }
       );
 
-      if (response.data.success) {
+      console.log('OTP Response:', response.data);
+
+      if (response.data && response.data.success) {
         // Store credentials for OTP verification
         localStorage.setItem('verifiedEmail', formData.email.trim());
         localStorage.setItem('verifiedRollNumber', formData.rollNumber.trim());
         
         // Navigate to OTP verification page
+        console.log('Navigating to OTP page...');
         navigate('/update-profile-by-roll/verify-otp');
+      } else {
+        setError(response.data?.message || 'Failed to send OTP');
       }
     } catch (err) {
       console.error('Send OTP error:', err);
+      console.error('Error response:', err.response);
       if (err.response?.data?.message) {
         setError(err.response.data.message);
+      } else if (err.message) {
+        setError(err.message);
       } else {
         setError('Failed to send OTP. Please try again.');
       }

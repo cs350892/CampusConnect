@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Loader2, Briefcase } from 'lucide-react';
 import axios from 'axios';
+import { getApiUrl } from '../utils/config';
 
 function JobPostForm({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -49,11 +50,10 @@ function JobPostForm({ onClose, onSuccess }) {
       setLoading(true);
       setError(null);
       
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const submitData = { ...formData };
       if (!submitData.email) delete submitData.email; // Remove empty email field
       
-      await axios.post(`${API_URL}/jobs`, submitData);
+      await axios.post(`${getApiUrl()}/jobs`, submitData);
       
       setSuccess(true);
       setTimeout(() => {

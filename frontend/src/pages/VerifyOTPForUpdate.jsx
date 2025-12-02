@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Mail, Hash, Lock, CheckCircle, XCircle, ArrowRight, ArrowLeft } from 'lucide-react';
+import { getApiUrl } from '../utils/config';
 
 const VerifyOTPForUpdate = () => {
   const navigate = useNavigate();

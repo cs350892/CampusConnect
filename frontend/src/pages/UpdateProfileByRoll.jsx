@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Mail, Hash, Lock, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
+import { getApiUrl } from '../utils/config';
 
 const UpdateProfileByRoll = () => {
   const navigate = useNavigate();

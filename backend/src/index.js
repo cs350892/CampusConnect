@@ -121,31 +121,30 @@ try {
 // Serve static files from React build folder
 const frontendBuildPath = path.join(__dirname, '../../frontend/dist');
 console.log(`📁 Serving static files from: ${frontendBuildPath}`);
+
+// Serve static assets with proper headers
 app.use(express.static(frontendBuildPath, { 
-  index: false,
   setHeaders: (res, filepath) => {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    if (filepath.endsWith('.html')) {
+    if (filepath.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (filepath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (filepath.endsWith('.html')) {
       res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Cache-Control', 'no-cache');
     }
   }
 }));
 
 // Catch-all route - serves index.html for all non-API routes
 app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) {
+  if (req.path.startsWith('/api') || req.path.includes('.')) {
     return next();
   }
   
   const indexPath = path.join(frontendBuildPath, 'index.html');
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Content-Type', 'text/html');
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('Error sending index.html:', err);
-      res.status(500).send('Error loading page');
-    }
-  });
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(indexPath);
 });
 
 // API 404 handler

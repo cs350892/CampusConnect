@@ -125,88 +125,35 @@ exports.register = async (req, res) => {
   }
 };
 
-// @desc    Login user (supports both email+password AND email+rollNumber)
+// @desc    Login user (email + rollNumber ONLY)
 // @route   POST /api/auth/login
 // @access  Public
 exports.login = async (req, res) => {
   try {
-    const { email, password, rollNumber } = req.body;
+    const { email, rollNumber } = req.body;
     
-    // Validate input - either password OR rollNumber required
-    if (!email) {
+    // Validate input
+    if (!email || !rollNumber) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email'
+        message: 'Please provide both email and roll number'
       });
     }
     
-    if (!password && !rollNumber) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide either password or roll number'
-      });
-    }
-    
-    // Normalize email
+    // Normalize inputs
     const normalizedEmail = email.toLowerCase().trim();
+    const normalizedRollNumber = rollNumber.trim();
     
-    // If rollNumber provided, verify email + rollNumber (no password needed)
-    if (rollNumber) {
-      const normalizedRollNumber = rollNumber.trim();
-      
-      // Find user by email and rollNumber
-      const user = await User.findOne({ 
-        email: normalizedEmail, 
-        rollNumber: normalizedRollNumber 
-      });
-      
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid email or roll number'
-        });
-      }
-      
-      // Check if account is active
-      if (!user.isActive) {
-        return res.status(403).json({
-          success: false,
-          message: 'Your account has been deactivated. Please contact admin.'
-        });
-      }
-      
-      // Update last login
-      user.lastLogin = new Date();
-      await user.save();
-      
-      // Log activity
-      await ActivityLog.logActivity({
-        performedBy: user._id,
-        action: 'user_login',
-        targetModel: 'User',
-        targetId: user._id,
-        details: `User logged in with roll number: ${user.name}`
-      });
-      
-      // Generate token
-      const token = generateToken(user._id);
-      
-      return res.status(200).json({
-        success: true,
-        message: 'Login successful',
-        token,
-        user: user.getPublicProfile()
-      });
-    }
-    
-    // Password-based login (original flow)
-    // Get user with password
-    const user = await User.findOne({ email: normalizedEmail }).select('+password');
+    // Find user by email and rollNumber
+    const user = await User.findOne({ 
+      email: normalizedEmail, 
+      rollNumber: normalizedRollNumber 
+    });
     
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid email or roll number'
       });
     }
     
@@ -215,16 +162,6 @@ exports.login = async (req, res) => {
       return res.status(403).json({
         success: false,
         message: 'Your account has been deactivated. Please contact admin.'
-      });
-    }
-    
-    // Check password
-    const isPasswordMatched = await user.comparePassword(password);
-    
-    if (!isPasswordMatched) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials'
       });
     }
     

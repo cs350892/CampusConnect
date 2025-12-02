@@ -5,6 +5,7 @@ dotenv.config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -117,12 +118,24 @@ try {
   throw error;
 }
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
-  });
+// Serve static files from React build folder
+const frontendBuildPath = path.join(__dirname, '../../frontend/dist');
+console.log(`📁 Serving static files from: ${frontendBuildPath}`);
+app.use(express.static(frontendBuildPath));
+
+// Catch-all route - serves index.html for all non-API routes
+// This allows React Router to handle client-side routing
+app.get('*', (req, res) => {
+  // Only serve index.html for non-API routes
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+  } else {
+    // API route not found
+    res.status(404).json({
+      success: false,
+      message: 'API route not found'
+    });
+  }
 });
 
 // Global error handling middleware

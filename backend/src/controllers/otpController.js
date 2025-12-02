@@ -81,19 +81,33 @@ exports.sendOtp = async (req, res) => {
     
     // Send OTP
     try {
+      console.log(`📤 Attempting to send OTP to ${normalizedIdentifier} via ${type}`);
+      console.log(`🔑 Generated OTP: ${otpCode}`);
+      
       if (type === 'email') {
+        console.log(`📧 Email config: HOST=${process.env.EMAIL_HOST}, USER=${process.env.EMAIL_USER}`);
         await sendOtpEmail(normalizedIdentifier, otpCode, user.name);
+        console.log(`✅ OTP email sent successfully to ${normalizedIdentifier}`);
       } else {
         await sendOtpSMS(normalizedIdentifier, otpCode);
+        console.log(`✅ OTP SMS sent successfully to ${normalizedIdentifier}`);
       }
     } catch (error) {
       // Delete OTP record if sending fails
       await Otp.findByIdAndDelete(otpRecord._id);
       
+      console.error(`❌ Failed to send OTP to ${normalizedIdentifier}:`, error);
+      console.error(`Error details:`, {
+        message: error.message,
+        code: error.code,
+        command: error.command
+      });
+      
       return res.status(500).json({
         success: false,
-        message: `Failed to send OTP via ${type}`,
-        error: error.message
+        message: `Failed to send OTP via ${type}. Please try again.`,
+        error: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.toString() : undefined
       });
     }
     

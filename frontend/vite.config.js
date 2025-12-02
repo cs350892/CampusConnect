@@ -7,4 +7,14 @@ export default defineConfig({
         tailwindcss(),
 
   ],
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+  },
+  server: {
+    historyApiFallback: true,
+  },
+  preview: {
+    historyApiFallback: true,
+  }
 })

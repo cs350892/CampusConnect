@@ -30,7 +30,7 @@ const UpdateProfileByRoll = () => {
       
       // Step 1: Send OTP to email
       const response = await axios.post(
-        `${API_URL}/profile-verify/send-otp`,
+        `${API_URL}/api/profile-verify/send-otp`,
         {
           email: formData.email.trim(),
           rollNumber: formData.rollNumber.trim()

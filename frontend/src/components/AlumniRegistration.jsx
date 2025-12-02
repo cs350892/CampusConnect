@@ -92,7 +92,7 @@ function AlumniRegistration({ isOpen, onClose, onSuccess }) {
       }
 
       const response = await axios.post(
-        `${API_URL}/alumni`, 
+        `${API_URL}/api/alumni`, 
         formDataToSend,
         {
           headers: {

@@ -118,46 +118,18 @@ try {
   throw error;
 }
 
-// Serve static files from React build folder
+// Serve static files from React build folder  
 const frontendBuildPath = path.join(__dirname, '../../frontend/dist');
 console.log(`📁 Serving static files from: ${frontendBuildPath}`);
 
-// Serve static assets with proper headers
-app.use(express.static(frontendBuildPath, { 
-  setHeaders: (res, filepath) => {
-    if (filepath.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (filepath.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    } else if (filepath.endsWith('.html')) {
-      res.setHeader('Content-Type', 'text/html');
-      res.setHeader('Cache-Control', 'no-cache');
-    }
-  }
-}));
+// Serve static files
+app.use(express.static(frontendBuildPath));
 
-// Catch-all route - serves index.html for all non-API routes
-app.get('*', (req, res, next) => {
-  // Skip API routes and static files
-  if (req.path.startsWith('/api')) {
-    return next();
+// SPA catch-all - MUST come after API routes
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
   }
-  
-  // Skip if requesting actual files (with extensions)
-  const ext = path.extname(req.path);
-  if (ext && ext !== '.html') {
-    return next();
-  }
-  
-  // Serve index.html with no-cache headers
-  const indexPath = path.join(frontendBuildPath, 'index.html');
-  res.set({
-    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0',
-    'Surrogate-Control': 'no-store'
-  });
-  res.sendFile(indexPath);
 });
 
 // API 404 handler

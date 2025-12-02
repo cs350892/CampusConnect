@@ -124,6 +124,7 @@ console.log(`📁 Serving static files from: ${frontendBuildPath}`);
 app.use(express.static(frontendBuildPath, { 
   index: false,
   setHeaders: (res, filepath) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     if (filepath.endsWith('.html')) {
       res.setHeader('Content-Type', 'text/html');
     }
@@ -131,16 +132,14 @@ app.use(express.static(frontendBuildPath, {
 }));
 
 // Catch-all route - serves index.html for all non-API routes
-// This allows React Router to handle client-side routing
 app.get('*', (req, res, next) => {
-  // Skip API routes
   if (req.path.startsWith('/api')) {
     return next();
   }
   
-  // Serve index.html for all other routes
   const indexPath = path.join(frontendBuildPath, 'index.html');
-  console.log(`Serving index.html for route: ${req.path}`);
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Content-Type', 'text/html');
   res.sendFile(indexPath, (err) => {
     if (err) {
       console.error('Error sending index.html:', err);
@@ -149,7 +148,7 @@ app.get('*', (req, res, next) => {
   });
 });
 
-// API 404 handler - must come after catch-all
+// API 404 handler
 app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
